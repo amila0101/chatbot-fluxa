@@ -7,10 +7,11 @@
     "server"
   ],
   "scripts": {
-    "install-deps": "npm install && npm install --workspaces",
+    "install-deps": "npm ci && npm ci --workspaces",
     "build": "npm run build --workspace=client",
-    "vercel-build": "npm install && npm install --workspaces && npm run build",
-    "clean-install": "npm ci",
-    "test": "npm test --verbose"
+    "vercel-build": "npm ci && npm ci --workspaces && npm run build",
+    "test": "npm run test:client && npm run test:server",
+    "test:client": "cd client && npm test",
+    "test:server": "cd server && npm test"
   }
 }
