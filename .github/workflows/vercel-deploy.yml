@@ -27,7 +27,7 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          npm install --workspaces
+          npm install --workspaces --verbose
           npm run verify
           npm run install-deps
 
