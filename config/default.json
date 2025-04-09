@@ -1,0 +1,12 @@
+{
+  "server": {
+    "port": 5000,
+    "host": "localhost"
+  },
+  "database": {
+    "url": "mongodb://localhost:27017/chatbot"
+  },
+  "api": {
+    "baseUrl": "http://localhost:5000/api"
+  }
+} 

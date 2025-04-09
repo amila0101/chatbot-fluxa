@@ -1,0 +1,105 @@
+openapi: 3.0.0
+info:
+  title: Chatbot API
+  version: 1.0.0
+  description: API documentation for the Chatbot application
+
+servers:
+  - url: http://localhost:5000
+    description: Development server
+  - url: https://chatbot-app.onrender.com
+    description: Production server
+
+components:
+  schemas:
+    ChatRequest:
+      type: object
+      required:
+        - userMessage
+      properties:
+        userMessage:
+          type: string
+          description: The message from the user
+        mode:
+          type: string
+          enum: [chat, code, ai]
+          default: chat
+          description: The mode of conversation
+
+    ChatResponse:
+      type: object
+      properties:
+        response:
+          type: string
+          description: The response from the chatbot
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Current server status
+        model:
+          type: string
+          description: AI model being used
+
+paths:
+  /chat:
+    post:
+      summary: Send a message to the chatbot
+      description: Sends a user message and receives a response from the AI model
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /health:
+    get:
+      summary: Check server health
+      description: Returns the current status of the server and AI model
+      responses:
+        '200':
+          description: Server is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+security:
+  - ApiKeyAuth: []
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: API key authentication

@@ -1,0 +1,15 @@
+# Render configuration
+render_api_key = "your-render-api-key"
+github_repo_url = "https://github.com/username/chatbot-project"
+
+# UptimeRobot configuration
+uptimerobot_api_key = "your-uptimerobot-api-key"
+uptimerobot_alert_contact_id = "your-alert-contact-id"
+
+# Application configuration
+mongodb_uri = "your-mongodb-uri"
+ai_api_key = "your-ai-api-key"
+sentry_dsn = "your-sentry-dsn"
+
+# Note: Create a copy of this file named 'terraform.tfvars' and fill in your actual values
+# Do not commit terraform.tfvars to version control

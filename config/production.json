@@ -1,0 +1,12 @@
+{
+  "server": {
+    "port": 8080,
+    "host": "0.0.0.0"
+  },
+  "database": {
+    "url": "MONGODB_URI_PLACEHOLDER"
+  },
+  "api": {
+    "baseUrl": "https://your-production-domain.com/api"
+  }
+} 

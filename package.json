@@ -1,0 +1,27 @@
+{
+  "name": "chatbot-project",
+  "version": "1.0.0",
+  "description": "Combined chatbot client and server application",
+  "private": true,
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "start": "cd server && npm start",
+    "server": "cd server && npm run dev",
+    "client": "cd client && npm start",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "install-deps": "npm install && npm install --workspaces",
+    "clean-install": "if exist node_modules rmdir /s /q node_modules && if exist client\\node_modules rmdir /s /q client\\node_modules && if exist server\\node_modules rmdir /s /q server\\node_modules && npm run install-deps",
+    "build": "cd client && npm run build",
+    "test": "npm test --workspaces",
+    "prepare": "npm run install-deps"
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
