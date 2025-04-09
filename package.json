@@ -11,12 +11,12 @@
     "build": "npm run build --workspace=client",
     "vercel-build": "npm run install-deps && npm run build",
     "test": "npm run test:client && npm run test:server",
-    "test:client": "npm run test --workspace=client",
-    "test:server": "npm run test --workspace=server",
+    "test:client": "npm --workspace=client test",
+    "test:server": "npm --workspace=server test",
     "lint": "npm run lint --workspaces --if-present",
     "clean": "rimraf node_modules **/node_modules",
     "ci": "npm ci && npm run ci --workspaces --if-present",
-    "verify": "node scripts/verify-workspaces.js"
+    "verify": "npm run lint && npm run test"
   },
   "devDependencies": {
     "concurrently": "^8.0.0",
