@@ -20,7 +20,8 @@
   },
   "devDependencies": {
     "concurrently": "^8.0.0",
-    "rimraf": "^5.0.0"
+    "rimraf": "^5.0.0",
+    "react-scripts": "^5.0.0"
   },
   "engines": {
     "node": ">=18",
