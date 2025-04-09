@@ -9,16 +9,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Import routes
-const chatRoutes = require('./routes/chat');
-
 // API routes
-app.use('/api/chat', chatRoutes);
+app.use('/api/chat', require('./routes/chat'));
 
 // Serve static files from React build
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../client/build')));
-
   app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/build/index.html'));
   });

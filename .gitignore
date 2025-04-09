@@ -28,17 +28,8 @@ Thumbs.db
 # Testing
 coverage/
 
-# Terraform
-*.tfstate
-*.tfstate.*
-.terraform/
-terraform.tfvars
-
-# Sentry
-.sentryclirc
-
-# Render
-.render-buildpacks/
+# Vercel
+.vercel
 
 # Misc
 *.pem

@@ -14,9 +14,10 @@
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "install-deps": "npm install && npm install --workspaces",
     "clean-install": "npm install && npm install --workspaces",
-    "build": "cd client && npm run build",
+    "build": "npm run build --workspace=client",
     "test": "npm test --workspaces",
-    "prepare": "npm run install-deps"
+    "prepare": "npm run install-deps",
+    "vercel-build": "npm run clean-install && npm run build"
   },
   "dependencies": {
     "@google/genai": "^0.7.0",
