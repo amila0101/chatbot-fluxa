@@ -19,16 +19,17 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      # Setup Node.js version using actions/setup-node@v3 (as per your request)
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v3
         with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          node-version: 18
 
       - name: Install Dependencies
         run: |
           npm install --workspaces
           npm run verify
+          npm run install-deps
 
       - name: Run Client Tests
         run: npm run test:client

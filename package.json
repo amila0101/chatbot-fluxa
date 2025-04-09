@@ -2,13 +2,10 @@
   "name": "chatbot-project",
   "version": "1.0.0",
   "private": true,
-  "workspaces": [
-    "client",
-    "server"
-  ],
+  "workspaces": ["client", "server"],
   "scripts": {
     "postinstall": "npm run install-deps",
-    "install-deps": "npm install --workspaces --if-present",
+    "install-deps": "npm install --workspaces",
     "start": "npm run start --workspace=server",
     "dev": "concurrently \"npm run start --workspace=server\" \"npm run start --workspace=client\"",
     "build": "npm run build --workspace=client",
