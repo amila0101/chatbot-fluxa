@@ -11,6 +11,6 @@
     "build": "npm run build --workspace=client",
     "vercel-build": "npm install && npm install --workspaces && npm run build",
     "clean-install": "npm ci",
-    "test": "npm test"
+    "test": "npm test --verbose"
   }
 }
