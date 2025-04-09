@@ -268,7 +268,7 @@ function Chatbot() {
         <div className={`p-4 border-t ${theme.border}`}>
           <button className={`w-full flex items-center gap-2 px-3 py-2 ${theme.text} ${theme.hover} rounded-lg`}>
             <FiUser />
-            <span className="text-sm">chathux361@gmail.com</span>
+            <span className="text-sm">fluxa@gmail.com</span>
             </button>
         </div>
       </div>
