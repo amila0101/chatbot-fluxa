@@ -10,6 +10,7 @@
     "install-deps": "npm install && npm install --workspaces",
     "build": "npm run build --workspace=client",
     "vercel-build": "npm install && npm install --workspaces && npm run build",
-    "clean-install": "npm ci"
+    "clean-install": "npm ci",
+    "test": "jest"
   }
 }
