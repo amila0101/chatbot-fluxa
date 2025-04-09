@@ -1,56 +1,14 @@
 {
   "name": "chatbot-project",
   "version": "1.0.0",
-  "description": "Combined chatbot client and server application",
   "private": true,
   "workspaces": [
     "client",
     "server"
   ],
   "scripts": {
-    "start": "cd server && npm start",
-    "server": "cd server && npm run dev",
-    "client": "cd client && npm start",
-    "dev": "concurrently \"npm run server\" \"npm run client\"",
     "install-deps": "npm install && npm install --workspaces",
-    "clean-install": "npm install && npm install --workspaces",
     "build": "npm run build --workspace=client",
-    "test": "npm test --workspaces",
-    "prepare": "npm run install-deps",
-    "vercel-build": "npm run clean-install && npm run build"
-  },
-  "dependencies": {
-    "@google/genai": "^0.7.0",
-    "@google/generative-ai": "^0.24.0",
-    "@opentelemetry/context-zone": "^2.0.0",
-    "@opentelemetry/exporter-trace-otlp-http": "^0.200.0",
-    "@opentelemetry/instrumentation": "^0.200.0",
-    "@opentelemetry/instrumentation-fetch": "^0.200.0",
-    "@opentelemetry/instrumentation-xml-http-request": "^0.200.0",
-    "@opentelemetry/resources": "^2.0.0",
-    "@opentelemetry/sdk-trace-base": "^2.0.0",
-    "@opentelemetry/sdk-trace-web": "^2.0.0",
-    "@opentelemetry/semantic-conventions": "^1.30.0",
-    "axios": "^1.8.4",
-    "concurrently": "^8.2.2",
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.7",
-    "express": "^4.21.2",
-    "framer-motion": "^10.16.4",
-    "mongoose": "^8.13.2",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-icons": "^5.5.0",
-    "react-router-dom": "^7.5.0",
-    "react-scripts": "^5.0.1",
-    "tailwindcss": "^3.3.0"
-  },
-  "devDependencies": {
-    "jest": "^29.7.0",
-    "nodemon": "^3.1.9",
-    "supertest": "^6.3.3"
-  },
-  "engines": {
-    "node": ">=18.0.0"
+    "vercel-build": "npm install && npm install --workspaces && npm run build"
   }
 }
