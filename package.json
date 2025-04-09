@@ -7,11 +7,26 @@
     "server"
   ],
   "scripts": {
-    "install-deps": "npm install && npm install --workspaces",
+    "postinstall": "npm run install-deps",
+    "install-deps": "npm install --workspaces --if-present",
+    "start": "npm run start --workspace=server",
+    "dev": "concurrently \"npm run start --workspace=server\" \"npm run start --workspace=client\"",
     "build": "npm run build --workspace=client",
-    "vercel-build": "npm install && npm install --workspaces && npm run build",
+    "vercel-build": "npm run install-deps && npm run build",
     "test": "npm run test:client && npm run test:server",
-    "test:client": "npm --workspace=client test",
-    "test:server": "npm --workspace=server test"
+    "test:client": "npm run test --workspace=client",
+    "test:server": "npm run test --workspace=server",
+    "lint": "npm run lint --workspaces --if-present",
+    "clean": "rimraf node_modules **/node_modules",
+    "ci": "npm ci && npm run ci --workspaces --if-present",
+    "verify": "node scripts/verify-workspaces.js"
+  },
+  "devDependencies": {
+    "concurrently": "^8.0.0",
+    "rimraf": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18",
+    "npm": ">=9"
   }
 }

@@ -25,22 +25,23 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      # New consolidated dependencies installation step
       - name: Install Dependencies
-        run: npm install --workspaces
+        run: |
+          npm install --workspaces
+          npm run verify
 
       - name: Run Client Tests
-        working-directory: ./client
-        run: npm test
+        run: npm run test:client
         env:
           CI: true
           REACT_APP_GEMINI_API_KEY: ${{ secrets.REACT_APP_GEMINI_API_KEY }}
 
       - name: Run Server Tests
-        working-directory: ./server
-        run: npm test
+        run: npm run test:server
         env:
           CI: true
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          AI_API_KEY: ${{ secrets.AI_API_KEY }}
 
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
