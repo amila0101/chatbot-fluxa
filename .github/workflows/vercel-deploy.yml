@@ -26,7 +26,7 @@ jobs:
         run: npm ci
 
       - name: Run Tests
-        run: npm test
+        run: npm test --verbose
 
       - name: Build Client
         run: npm run build
