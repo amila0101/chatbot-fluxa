@@ -5,6 +5,7 @@ import { generateGeminiResponse } from './services/geminiService';
 import { useTheme } from './context/ThemeContext';
 import { PremiumFeatures } from './components/PremiumFeatures';
 import { Payment } from './components/Payment';
+import './styles/Chatbot.css';
 
 function Chatbot() {
   const { isDarkMode, toggleTheme } = useTheme();
@@ -38,12 +39,12 @@ function Chatbot() {
 
   // Navigation items
   const navigationItems = [
-    { 
-      section: 'Platform', 
+    {
+      section: 'Platform',
       items: [
-        { 
-          id: 'playground', 
-          icon: <FiCommand />, 
+        {
+          id: 'playground',
+          icon: <FiCommand />,
           label: 'Playground',
           submenu: [
             { id: 'chat', label: 'Chat Mode', icon: <FiMessageSquare /> },
@@ -56,12 +57,12 @@ function Chatbot() {
         { id: 'settings', icon: <FiSettings />, label: 'Settings' },
       ]
     },
-    { 
+    {
       section: 'Models',
       items: [
-        { 
-          id: 'models', 
-          icon: <FiArchive />, 
+        {
+          id: 'models',
+          icon: <FiArchive />,
           label: 'Models',
           submenu: [
             { id: 'gemini-pro', label: 'Gemini Pro', icon: <FiCpu /> },
@@ -71,12 +72,12 @@ function Chatbot() {
         },
       ]
     },
-    { 
+    {
       section: 'Documentation',
       items: [
-        { 
-          id: 'docs', 
-          icon: <FiBook />, 
+        {
+          id: 'docs',
+          icon: <FiBook />,
           label: 'Documentation',
           submenu: [
             { id: 'api-docs', label: 'API Reference', icon: <FiCode /> },
@@ -86,7 +87,7 @@ function Chatbot() {
         },
       ]
     },
-    { 
+    {
       section: 'Projects',
       items: [
         { id: 'design', icon: <FiCommand />, label: 'Design Engineering' },
@@ -167,6 +168,13 @@ function Chatbot() {
     setInput(''); // Clear input right away
 
     try {
+      // Add typing indicator
+      setMessages(prev => [...prev, {
+        text: '...',
+        sender: 'bot',
+        timestamp: new Date().toISOString()
+      }]);
+
       // Get AI response based on mode
       let prompt = currentInput;
       switch (activeMode) {
@@ -184,17 +192,22 @@ function Chatbot() {
       }
 
       const response = await generateGeminiResponse(prompt);
-      
-      // Add AI response to chat
-      setMessages(prev => [...prev, {
-        text: response,
-        sender: 'bot',
-        timestamp: new Date().toISOString()
-      }]);
+
+      // Replace typing indicator with actual response
+      setMessages(prev => {
+        const newMessages = [...prev];
+        // Replace the last message (typing indicator) with the actual response
+        newMessages[newMessages.length - 1] = {
+          text: response,
+          sender: 'bot',
+          timestamp: new Date().toISOString()
+        };
+        return newMessages;
+      });
     } catch (error) {
       console.error('Error:', error);
       // Add error message to chat
-      setMessages(prev => [...prev, { 
+      setMessages(prev => [...prev, {
         text: `Error: ${error.message}. Please try again.`,
         sender: 'bot',
         error: true,
@@ -219,7 +232,7 @@ function Chatbot() {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFile(e.dataTransfer.files[0]);
     }
@@ -237,15 +250,15 @@ function Chatbot() {
   };
 
   return (
-    <div className={`flex h-screen ${theme.background} transition-colors duration-200`}>
+    <div className={`flex h-screen ${theme.background} theme-transition`}>
       {/* Sidebar */}
       <div className={`w-64 ${theme.sidebar} border-r ${theme.border} flex flex-col`}>
         {/* Logo */}
         <div className={`p-4 border-b ${theme.border}`}>
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-gradient-to-r from-[#2DA8D4] to-[#0EA5E9] rounded-lg" />
-            <span className={`${theme.textDark} text-xl font-semibold`}>
-              Fluxa<span className="text-[#2DA8D4]">AI</span>
+            <span className={`${theme.textDark} text-xl font-semibold gradient-text`}>
+              Fluxa<span>AI</span>
             </span>
           </div>
         </div>
@@ -291,7 +304,7 @@ function Chatbot() {
                 Upgrade to Premium
               </button>
             )}
-            <button 
+            <button
               onClick={toggleTheme}
               className={`p-2 ${theme.text} hover:text-[#2DA8D4] transition-colors`}
             >
@@ -313,11 +326,11 @@ function Chatbot() {
               </div>
             ) : (
               // Messages area when there are messages
-              <div className="mb-8 overflow-y-auto max-h-[calc(100vh-280px)]">
+              <div className="mb-8 overflow-y-auto max-h-[calc(100vh-280px)] custom-scrollbar">
             {messages.map((message, index) => (
-                  <ChatMessage 
+                  <ChatMessage
                 key={index}
-                    message={message} 
+                    message={message}
                     theme={theme}
                     isDarkMode={isDarkMode}
                   />
@@ -327,44 +340,44 @@ function Chatbot() {
 
             {/* Action Buttons */}
             <div className="flex flex-wrap gap-2 mb-4 justify-center">
-              <button 
+              <button
                 onClick={() => setActiveMode('web')}
                 className={`px-3 py-1.5 ${
-                  activeMode === 'web' 
-                    ? 'bg-[#2DA8D4] text-white' 
+                  activeMode === 'web'
+                    ? 'bg-[#2DA8D4] text-white'
                     : `${theme.button} ${theme.buttonBorder} ${theme.text}`
                 } rounded-full hover:bg-[#2DA8D4] hover:text-white transition-colors flex items-center gap-2`}
               >
                 <FiSearch className="w-4 h-4" />
                 Web Search
               </button>
-              <button 
+              <button
                 onClick={() => setActiveMode('app')}
                 className={`px-3 py-1.5 ${
-                  activeMode === 'app' 
-                    ? 'bg-[#2DA8D4] text-white' 
+                  activeMode === 'app'
+                    ? 'bg-[#2DA8D4] text-white'
                     : `${theme.button} ${theme.buttonBorder} ${theme.text}`
                 } rounded-full hover:bg-[#2DA8D4] hover:text-white transition-colors flex items-center gap-2`}
               >
                 <FiCommand className="w-4 h-4" />
                 App Builder
               </button>
-              <button 
+              <button
                 onClick={() => setActiveMode('deep')}
                 className={`px-3 py-1.5 ${
-                  activeMode === 'deep' 
-                    ? 'bg-[#2DA8D4] text-white' 
+                  activeMode === 'deep'
+                    ? 'bg-[#2DA8D4] text-white'
                     : `${theme.button} ${theme.buttonBorder} ${theme.text}`
                 } rounded-full hover:bg-[#2DA8D4] hover:text-white transition-colors flex items-center gap-2`}
               >
                 <FiZap className="w-4 h-4" />
                 Deep Research
               </button>
-              <button 
+              <button
                 onClick={() => setActiveMode('upload')}
                 className={`px-3 py-1.5 ${
-                  activeMode === 'upload' 
-                    ? 'bg-[#2DA8D4] text-white' 
+                  activeMode === 'upload'
+                    ? 'bg-[#2DA8D4] text-white'
                     : `${theme.button} ${theme.buttonBorder} ${theme.text}`
                 } rounded-full hover:bg-[#2DA8D4] hover:text-white transition-colors flex items-center gap-2`}
               >
@@ -374,7 +387,7 @@ function Chatbot() {
         </div>
 
             {/* Input Area - Made more compact */}
-            <div className={`relative ${theme.input} ${theme.inputBorder} rounded-lg overflow-hidden`}>
+            <div className={`relative ${theme.input} ${theme.inputBorder} rounded-lg overflow-hidden input-gradient`}>
               <textarea
                 ref={inputRef}
                 value={input}
@@ -394,7 +407,7 @@ function Chatbot() {
                 <button
                   onClick={handleSubmit}
                   disabled={isLoading || !input.trim()}
-                  className="px-4 py-2 bg-[#2DA8D4] text-white rounded-lg hover:bg-[#2B96BC] transition-colors flex items-center gap-2"
+                  className="px-4 py-2 bg-[#2DA8D4] text-white rounded-lg hover:bg-[#2B96BC] transition-colors flex items-center gap-2 hover-scale"
                 >
                   Deep Research
                   <FiSend className="w-4 h-4" />
@@ -406,11 +419,11 @@ function Chatbot() {
       </div>
 
       {showPremium && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
           onClick={() => setShowPremium(false)}
         >
-          <div 
+          <div
             className={`${theme.background} rounded-xl max-h-[90vh] overflow-y-auto relative`}
             onClick={e => e.stopPropagation()}
           >
@@ -420,9 +433,9 @@ function Chatbot() {
             >
               <FiX className="w-6 h-6" />
             </button>
-            
-            <PremiumFeatures 
-              theme={theme} 
+
+            <PremiumFeatures
+              theme={theme}
               onSubscribe={(plan) => {
                 setSelectedPlan(plan);
                 setShowPremium(false);
@@ -434,11 +447,11 @@ function Chatbot() {
       )}
 
       {showPayment && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
           onClick={() => setShowPayment(false)}
         >
-          <div 
+          <div
             className={`${theme.background} rounded-xl relative`}
             onClick={e => e.stopPropagation()}
           >
@@ -448,8 +461,8 @@ function Chatbot() {
             >
               <FiX className="w-6 h-6" />
             </button>
-            
-            <Payment 
+
+            <Payment
               theme={theme}
               plan={selectedPlan}
               onSuccess={handlePaymentSuccess}
@@ -478,7 +491,7 @@ function NavigationItem({ item, theme }) {
           </span>
         )}
       </button>
-      
+
       {/* Submenu */}
       {item.submenu && isExpanded && (
         <motion.div
@@ -517,8 +530,8 @@ function ActionButton({ icon, label, onClick, isActive, theme }) {
               <button
       onClick={onClick}
       className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-        isActive 
-          ? 'bg-[#2DA8D4] text-white' 
+        isActive
+          ? 'bg-[#2DA8D4] text-white'
           : `${theme.button} ${theme.buttonBorder} ${theme.text} hover:bg-[#2DA8D4] hover:text-white`
       }`}
     >
@@ -563,8 +576,8 @@ function UploadArea({ theme, isActive, fileInputRef, handleFile }) {
   return (
     <div
       className={`w-full p-8 border-2 border-dashed rounded-xl transition-colors ${
-        isActive 
-          ? 'border-[#2DA8D4] bg-[#2DA8D4]/10' 
+        isActive
+          ? 'border-[#2DA8D4] bg-[#2DA8D4]/10'
           : `${theme.border} ${theme.input}`
       }`}
     >
@@ -618,16 +631,24 @@ function SelectedFile({ file, onRemove, theme }) {
 
 function ChatMessage({ message, theme, isDarkMode }) {
   return (
-    <div className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'} mb-4`}>
+    <div className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'} mb-4 message-appear`}>
       <div className={`max-w-[80%] ${
-        message.sender === 'user' 
-          ? 'bg-[#2DA8D4] text-white' 
+        message.sender === 'user'
+          ? 'bg-[#2DA8D4] text-white'
           : `${theme.input} ${theme.inputBorder} ${theme.text}`
       } rounded-lg p-3`}>
-        <p>{message.text}</p>
+        {message.text === '...' ? (
+          <div className="typing-indicator">
+            <span className="typing-indicator-dot"></span>
+            <span className="typing-indicator-dot"></span>
+            <span className="typing-indicator-dot"></span>
+          </div>
+        ) : (
+          <p>{message.text}</p>
+        )}
         <div className={`text-xs mt-1 ${
-          message.sender === 'user' 
-            ? 'text-white/70' 
+          message.sender === 'user'
+            ? 'text-white/70'
             : isDarkMode ? 'text-gray-500' : 'text-gray-400'
         }`}>
           {new Date(message.timestamp).toLocaleTimeString()}
@@ -637,4 +658,4 @@ function ChatMessage({ message, theme, isDarkMode }) {
   );
 }
 
-export default Chatbot; 
+export default Chatbot;
