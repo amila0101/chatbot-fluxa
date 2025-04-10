@@ -29,6 +29,12 @@ jobs:
           npm install
           npm run install-deps
 
+      - name: Security Audit
+        run: |
+          npm audit --production
+          cd client && npm audit --production
+          cd ../server && npm audit --production
+
       - name: Run Tests
         env:
           CI: true
