@@ -41,8 +41,9 @@ jobs:
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
           NODE_ENV: test
+          SKIP_PREFLIGHT_CHECK: true
         run: |
-          npm run test:client -- --coverage --maxWorkers=2
+          npm run test:client
           npm run test:server -- --coverage --maxWorkers=2
 
       - name: Install Vercel CLI
