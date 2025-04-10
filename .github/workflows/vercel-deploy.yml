@@ -31,10 +31,7 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          npm install --workspaces --verbose
-          npm run verify
-          npm run install-deps
-           npm ci --include-workspace-root
+         npm ci --include-workspace-root
           npm ci --workspace=client
           npm ci --workspace=server
 
