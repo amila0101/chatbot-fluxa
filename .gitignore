@@ -37,3 +37,7 @@ coverage/
 *.key
 *.cert
 .cache/
+
+# NPM configuration
+.npmrc
+*/npmrc
