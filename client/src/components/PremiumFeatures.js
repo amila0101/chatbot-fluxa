@@ -63,7 +63,7 @@ export function PremiumFeatures({ theme, onSubscribe }) {
 
   const handleSubscribe = (plan) => {
     if (plan.price !== "Custom") {
-      onSubscribe?.(plan);
+      if (onSubscribe) onSubscribe(plan);
     }
   };
 
@@ -134,4 +134,4 @@ export function PremiumFeatures({ theme, onSubscribe }) {
       </div>
     </div>
   );
-} 
+}

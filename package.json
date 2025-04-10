@@ -9,8 +9,8 @@
   "scripts": {
     "install-deps": "npm install && cd client && npm install && cd ../server && npm install",
     "start": "npm run start --workspace=server",
-    "dev": "concurrently \"npm run start --workspace=server\" \"npm run start --workspace=client\"",
-    "build": "npm run build --workspace=client",
+    "dev": "concurrently \"npm run start --workspace=server\" \"cd client && cross-env NODE_OPTIONS=--openssl-legacy-provider SKIP_PREFLIGHT_CHECK=true npm start\"",
+    "build": "cd client && cross-env NODE_OPTIONS=--openssl-legacy-provider SKIP_PREFLIGHT_CHECK=true npm run build",
     "test:client": "cd client && npm test",
     "test:server": "npm run test --workspace=server",
     "lint": "npm run lint --workspaces --if-present",
@@ -26,7 +26,7 @@
     "apply-security-fixes": "node scripts/apply-security-fixes.js",
     "update-deps": "npm update && cd client && npm update && cd ../server && npm update",
     "update-dependabot": "node scripts/update-dependabot.js",
-    "dev:safe": "BROWSER=none SKIP_PREFLIGHT_CHECK=true npm run dev"
+    "dev:safe": "cross-env NODE_OPTIONS=--openssl-legacy-provider BROWSER=none SKIP_PREFLIGHT_CHECK=true npm run dev"
   },
   "engines": {
     "node": ">=18",
@@ -34,6 +34,7 @@
   },
   "devDependencies": {
     "concurrently": "^8.0.0",
+    "cross-env": "^7.0.3",
     "rimraf": "^6.0.1",
     "yaml": "^2.3.4"
   }

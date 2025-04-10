@@ -55,6 +55,9 @@ jobs:
           vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }} || echo "Vercel pull failed, but continuing with deployment"
 
       - name: Build Project Artifacts
+        env:
+          NODE_OPTIONS: --openssl-legacy-provider
+          SKIP_PREFLIGHT_CHECK: true
         run: |
           # Try to build with Vercel, fallback to regular build if it fails
           vercel build --prod --token=${{ secrets.VERCEL_TOKEN }} || npm run build

@@ -12,7 +12,7 @@ export function Payment({ theme, plan, onSuccess }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log('Processing payment:', paymentDetails);
-    onSuccess?.();
+    if (onSuccess) onSuccess();
   };
 
   return (
@@ -135,4 +135,4 @@ export function Payment({ theme, plan, onSuccess }) {
       </form>
     </div>
   );
-} 
+}
