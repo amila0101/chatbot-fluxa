@@ -2,6 +2,11 @@ const axios = require('axios');
 const config = require('../config');
 
 exports.getResponse = async (message) => {
+  // In test environment, return a mock response
+  if (process.env.NODE_ENV === 'test') {
+    return `Test response for: ${message}`;
+  }
+
   try {
     const response = await axios.post('https://api.openai.com/v1/chat/completions', {
       model: 'gpt-3.5-turbo',
