@@ -35,9 +35,10 @@ jobs:
           REACT_APP_GEMINI_API_KEY: ${{ secrets.REACT_APP_GEMINI_API_KEY }}
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
+          NODE_ENV: test
         run: |
-          npm run test:client
-          npm run test:server
+          npm run test:client -- --coverage --maxWorkers=2
+          npm run test:server -- --coverage --maxWorkers=2
 
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
