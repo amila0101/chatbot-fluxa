@@ -7,30 +7,23 @@
     "server"
   ],
   "scripts": {
-    "postinstall": "npm run install-deps",
-    "install-deps": "npm ci --include-workspace-root && npm ci --workspace=client && npm ci --workspace=server",
+    
+    "install-deps": "npm install && cd client && npm install && cd ../server && npm install",
     "start": "npm run start --workspace=server",
     "dev": "concurrently \"npm run start --workspace=server\" \"npm run start --workspace=client\"",
     "build": "npm run build --workspace=client",
-    "vercel-build": "npm run install-deps && npm run build",
-    "test": "npm run test:client && npm run test:server",
-    "test:client": "npm --workspace=client test",
-    "test:server": "npm --workspace=server test",
+    "test:client": "npm run test --workspace=client",
+    "test:server": "npm run test --workspace=server",
     "lint": "npm run lint --workspaces --if-present",
     "clean": "rimraf node_modules **/node_modules",
-    "ci": "npm ci && npm run ci --workspaces --if-present",
-    "verify": "npm run lint && npm run test"
-  },
-  "devDependencies": {
-    "concurrently": "^8.0.0",
-    "rimraf": "^5.0.0"
+    "verify": "npm run lint && npm run test:client && npm run test:server"
   },
   "engines": {
     "node": ">=18",
     "npm": ">=9"
   },
-  "dependencies": {
-    "superagent": "^10.2.0",
-    "svgo": "^2.8.0"
+  "devDependencies": {
+    "concurrently": "^8.0.0",
+    "rimraf": "^6.0.1"
   }
 }

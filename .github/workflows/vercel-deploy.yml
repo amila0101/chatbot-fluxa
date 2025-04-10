@@ -3,7 +3,7 @@ name: Vercel Production Deployment
 env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-  NODE_VERSION: '22.x'
+  NODE_VERSION: '18'
 
 on:
   push:
@@ -15,45 +15,29 @@ jobs:
   Test-Build-Deploy:
     runs-on: ubuntu-latest
 
-    strategy:
-      fail-fast: false
-      max-parallel: 1
-
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
+      - uses: actions/checkout@v4
+      
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
 
-      - name: Show Node.js and npm version
+      - name: Install Dependencies
         run: |
-          node -v
-          npm -v
+          npm install
+          npm run install-deps
 
-      - name: Install Workspace Root Dependencies
-        run: npm ci --include-workspace-root
-
-      - name: Install Client Dependencies
-        run: npm ci --workspace=client
-
-      - name: Install Server Dependencies
-        run: npm ci --workspace=server
-
-      - name: Run Client Tests
-        run: npm run test:client
+      - name: Run Tests
         env:
           CI: true
           REACT_APP_GEMINI_API_KEY: ${{ secrets.REACT_APP_GEMINI_API_KEY }}
-
-      - name: Run Server Tests
-        run: npm run test:server
-        env:
-          CI: true
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
+        run: |
+          npm run test:client
+          npm run test:server
 
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
