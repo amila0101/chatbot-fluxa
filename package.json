@@ -23,8 +23,10 @@
     "security-fix-force": "npm audit fix --force && cd client && npm audit fix --force && cd ../server && npm audit fix --force",
     "fix-vulnerabilities": "node scripts/fix-vulnerabilities.js",
     "fix-security": "node scripts/fix-security-issues.js",
+    "apply-security-fixes": "node scripts/apply-security-fixes.js",
     "update-deps": "npm update && cd client && npm update && cd ../server && npm update",
-    "update-dependabot": "node scripts/update-dependabot.js"
+    "update-dependabot": "node scripts/update-dependabot.js",
+    "dev:safe": "BROWSER=none SKIP_PREFLIGHT_CHECK=true npm run dev"
   },
   "engines": {
     "node": ">=18",

@@ -29,11 +29,10 @@ jobs:
           npm install
           npm run install-deps
 
-      - name: Security Audit
+      - name: Security Audit and Fix
         run: |
-          npm audit --production
-          cd client && npm audit --production
-          cd ../server && npm audit --production
+          # Apply security fixes using our custom script
+          npm run apply-security-fixes
 
       - name: Run Tests
         env:
