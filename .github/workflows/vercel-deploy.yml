@@ -34,6 +34,9 @@ jobs:
           npm install --workspaces --verbose
           npm run verify
           npm run install-deps
+           npm ci --include-workspace-root
+          npm ci --workspace=client
+          npm ci --workspace=server
 
       - name: Run Client Tests
         run: npm run test:client

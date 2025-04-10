@@ -5,7 +5,7 @@
   "workspaces": ["client", "server"],
   "scripts": {
     "postinstall": "npm run install-deps",
-    "install-deps": "npm install && npm install --workspaces",
+    "install-deps": "npm ci --include-workspace-root && npm ci --workspace=client && npm ci --workspace=server",
     "start": "npm run start --workspace=server",
     "dev": "concurrently \"npm run start --workspace=server\" \"npm run start --workspace=client\"",
     "build": "npm run build --workspace=client",
