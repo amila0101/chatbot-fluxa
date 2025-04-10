@@ -2,7 +2,10 @@
   "name": "chatbot-project",
   "version": "1.0.0",
   "private": true,
-  "workspaces": ["client", "server"],
+  "workspaces": [
+    "client",
+    "server"
+  ],
   "scripts": {
     "postinstall": "npm run install-deps",
     "install-deps": "npm ci --include-workspace-root && npm ci --workspace=client && npm ci --workspace=server",
@@ -25,5 +28,9 @@
   "engines": {
     "node": ">=18",
     "npm": ">=9"
+  },
+  "dependencies": {
+    "superagent": "^10.2.0",
+    "svgo": "^2.8.0"
   }
 }

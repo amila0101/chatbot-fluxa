@@ -15,6 +15,10 @@ jobs:
   Test-Build-Deploy:
     runs-on: ubuntu-latest
 
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -29,11 +33,14 @@ jobs:
           node -v
           npm -v
 
-      - name: Install Dependencies
-        run: |
-         npm ci --include-workspace-root
-          npm ci --workspace=client
-          npm ci --workspace=server
+      - name: Install Workspace Root Dependencies
+        run: npm ci --include-workspace-root
+
+      - name: Install Client Dependencies
+        run: npm ci --workspace=client
+
+      - name: Install Server Dependencies
+        run: npm ci --workspace=server
 
       - name: Run Client Tests
         run: npm run test:client
