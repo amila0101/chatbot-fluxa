@@ -1,5 +1,6 @@
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent';  // Use v1beta if v1 fails
 const GEMINI_API_KEY = process.env.REACT_APP_GEMINI_API_KEY;
+REACT_APP_GEMINI_API_KEY=AIzaSyCYM8XiqTB0s1wmY5kYTdqF4uWhDDj5Twg
 
 export const generateGeminiResponse = async (prompt) => {
   try {
