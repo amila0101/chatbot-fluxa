@@ -3,7 +3,7 @@ name: Vercel Production Deployment
 env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-  NODE_VERSION: '18'
+  NODE_VERSION: '20'
 
 on:
   push:
@@ -19,11 +19,15 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # Setup Node.js version using actions/setup-node@v3 (as per your request)
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Show Node.js and npm version
+        run: |
+          node -v
+          npm -v
 
       - name: Install Dependencies
         run: |
