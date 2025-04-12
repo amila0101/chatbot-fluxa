@@ -37,9 +37,9 @@ jobs:
       - name: Run Tests
         env:
           CI: true
-          REACT_APP_GEMINI_API_KEY: dummy-key
-          MONGODB_URI: mongodb://localhost:27017/test
-          AI_API_KEY: dummy-key
+          REACT_APP_GEMINI_API_KEY: ${{ secrets.REACT_APP_GEMINI_API_KEY }}
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          AI_API_KEY: ${{ secrets.AI_API_KEY }}
           NODE_ENV: test
           SKIP_PREFLIGHT_CHECK: true
         run: |
