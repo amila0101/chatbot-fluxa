@@ -208,6 +208,7 @@ function Chatbot() {
     } catch (error) {
       console.error('Error:', error);
       // Add error message to chat
+        // Add error message to chat
       setMessages(prev => [...prev, {
         text: `Error: ${error.message}. Please try again.`,
         sender: 'bot',
