@@ -77,7 +77,7 @@ We expect all contributors to:
 
 ### Reporting Bugs
 
-If you find a bug, please create an issue with the following information:
+If you find a bug, please create an issue using the **Bug Report** template. This template will guide you to provide all the necessary information, including:
 
 - A clear, descriptive title
 - Steps to reproduce the issue
@@ -88,12 +88,24 @@ If you find a bug, please create an issue with the following information:
 
 ### Suggesting Features
 
-We welcome feature suggestions! Please create an issue with:
+We welcome feature suggestions! Please create an issue using the **Feature Request** template. This template will guide you to provide all the necessary information, including:
 
 - A clear, descriptive title
 - Detailed description of the proposed feature
+- Problem statement and proposed solution
 - Any relevant mockups or examples
 - Explanation of why this feature would be useful to most users
+
+### Reporting Technical Debt
+
+We value code quality and maintainability. If you identify technical debt or code that needs refactoring, please create an issue using the **Technical Debt** template. This template will guide you to provide information about:
+
+- Description of the technical debt
+- Location in the codebase
+- Current impact on the project
+- Proposed solution
+- Effort estimation
+- Benefits of addressing it
 
 ### Pull Requests
 
