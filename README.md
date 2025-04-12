@@ -65,6 +65,14 @@ When submitting a pull request, you can use one of our specialized templates by 
 
 For more detailed information, please check the [docs](docs/) directory.
 
+### Team Collaboration
+
+We follow structured collaboration protocols to ensure efficient teamwork:
+
+- [Team Collaboration Protocols](docs/team-collaboration.md) - Comprehensive guide to our team processes
+- [Quick Reference Guide](docs/collaboration-quick-reference.md) - Handy reference for daily workflows
+- [Team Workflow Diagrams](docs/team-workflow.md) - Visual representations of our processes
+
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
