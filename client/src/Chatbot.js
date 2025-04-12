@@ -98,7 +98,7 @@ function Chatbot() {
   ];
 
   // Add these action buttons above the input area
-   // Add these action buttons above the input area
+   
   const actionButtons = [
     { id: 'web', icon: <FiSearch className="w-4 h-4" />, label: 'Web Search' },
     { id: 'app', icon: <FiBox className="w-4 h-4" />, label: 'App Builder' },
