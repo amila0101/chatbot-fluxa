@@ -65,16 +65,13 @@ When submitting a pull request, you can use one of our specialized templates by 
 
 For more detailed information, please check the [docs](docs/) directory.
 
-## SLA Monitoring
+### Team Collaboration
 
-We maintain Service Level Agreements (SLAs) for issue resolution to ensure timely responses and fixes. Our system automatically:
+We follow structured collaboration protocols to ensure efficient teamwork:
 
-- Tracks response and resolution times for all issues
-- Labels issues based on their SLA status
-- Generates compliance reports
-- Alerts the team when SLAs are at risk
-
-For details on our SLA policies and how the monitoring works, see the [SLA Monitoring Guide](docs/sla-monitoring.md).
+- [Team Collaboration Protocols](docs/team-collaboration.md) - Comprehensive guide to our team processes
+- [Quick Reference Guide](docs/collaboration-quick-reference.md) - Handy reference for daily workflows
+- [Team Workflow Diagrams](docs/team-workflow.md) - Visual representations of our processes
 
 ## License
 

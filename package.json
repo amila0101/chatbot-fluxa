@@ -26,11 +26,7 @@
     "apply-security-fixes": "node scripts/apply-security-fixes.js",
     "update-deps": "npm update && cd client && npm update && cd ../server && npm update",
     "update-dependabot": "node scripts/update-dependabot.js",
-    "dev:safe": "cross-env NODE_OPTIONS=--openssl-legacy-provider BROWSER=none SKIP_PREFLIGHT_CHECK=true npm run dev",
-    "monitor-sla": "node scripts/monitor-sla.js",
-    "sla-report": "node scripts/monitor-sla.js && echo 'SLA report generated in reports directory'",
-    "sla-dashboard": "node scripts/monitor-sla.js && node scripts/generate-sla-dashboard.js",
-    "setup-sla": "node scripts/setup-sla-monitoring.js"
+    "dev:safe": "cross-env NODE_OPTIONS=--openssl-legacy-provider BROWSER=none SKIP_PREFLIGHT_CHECK=true npm run dev"
   },
   "engines": {
     "node": ">=18",
