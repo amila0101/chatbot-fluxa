@@ -1,0 +1,58 @@
+{
+  "priorities": {
+    "critical": {
+      "label": "priority: critical",
+      "firstResponseTime": 4,
+      "resolutionTime": 24
+    },
+    "high": {
+      "label": "priority: high",
+      "firstResponseTime": 8,
+      "resolutionTime": 48
+    },
+    "medium": {
+      "label": "priority: medium",
+      "firstResponseTime": 24,
+      "resolutionTime": 72
+    },
+    "low": {
+      "label": "priority: low",
+      "firstResponseTime": 48,
+      "resolutionTime": 168
+    }
+  },
+  "issueTypes": {
+    "bug": {
+      "label": "bug",
+      "defaultPriority": "medium"
+    },
+    "feature": {
+      "label": "enhancement",
+      "defaultPriority": "low"
+    },
+    "technicalDebt": {
+      "label": "technical-debt",
+      "defaultPriority": "low"
+    }
+  },
+  "slaLabels": {
+    "withinSla": "status: within-sla",
+    "slaCaution": "status: sla-caution",
+    "slaBreached": "status: sla-breached"
+  },
+  "responseLabels": {
+    "needsResponse": "status: needs-response",
+    "responded": "status: responded"
+  },
+  "excludeLabels": [
+    "duplicate",
+    "wontfix",
+    "invalid"
+  ],
+  "workingHours": {
+    "enabled": true,
+    "startHour": 9,
+    "endHour": 17,
+    "workingDays": [1, 2, 3, 4, 5]
+  }
+}
