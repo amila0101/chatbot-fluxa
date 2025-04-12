@@ -14,41 +14,41 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-        
+
       - name: Dependency Review
-        uses: actions/dependency-review-action@v3
+        uses: actions/dependency-review-action@v4
         with:
           fail-on-severity: high
-          
+
   test-dependencies:
     runs-on: ubuntu-latest
     if: ${{ contains(github.event.pull_request.labels.*.name, 'dependencies') }}
-    
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-        
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'npm'
-          
+
       - name: Install Dependencies
         run: |
           npm install
           npm run install-deps
-          
+
       - name: Run Tests
         env:
           CI: true
-          REACT_APP_GEMINI_API_KEY: ${{ secrets.REACT_APP_GEMINI_API_KEY || 'test-key' }}
-          MONGODB_URI: ${{ secrets.MONGODB_URI || 'mongodb://localhost:27017/test' }}
-          AI_API_KEY: ${{ secrets.AI_API_KEY || 'test-key' }}
+          REACT_APP_GEMINI_API_KEY: dummy-key
+          MONGODB_URI: mongodb://localhost:27017/test
+          AI_API_KEY: dummy-key
           NODE_ENV: test
         run: |
           npm run test:client
           npm run test:server
-          
+
       - name: Build Project
         run: npm run build
