@@ -29,6 +29,10 @@ Thumbs.db
 # Testing
 coverage/
 
+# SLA Monitoring
+reports/
+!public/sla-dashboard.html
+
 # Vercel
 .vercel
 

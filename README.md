@@ -65,6 +65,17 @@ When submitting a pull request, you can use one of our specialized templates by 
 
 For more detailed information, please check the [docs](docs/) directory.
 
+## SLA Monitoring
+
+We maintain Service Level Agreements (SLAs) for issue resolution to ensure timely responses and fixes. Our system automatically:
+
+- Tracks response and resolution times for all issues
+- Labels issues based on their SLA status
+- Generates compliance reports
+- Alerts the team when SLAs are at risk
+
+For details on our SLA policies and how the monitoring works, see the [SLA Monitoring Guide](docs/sla-monitoring.md).
+
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.

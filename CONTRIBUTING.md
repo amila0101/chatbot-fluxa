@@ -107,6 +107,25 @@ We value code quality and maintainability. If you identify technical debt or cod
 - Effort estimation
 - Benefits of addressing it
 
+### Issue Priority and SLAs
+
+We maintain Service Level Agreements (SLAs) for issue resolution. When creating or triaging issues, please consider the appropriate priority level:
+
+- **Critical**: Severe production issues affecting all users (response: 4h, resolution: 24h)
+- **High**: Important issues affecting many users (response: 8h, resolution: 48h)
+- **Medium**: Issues affecting some users or functionality (response: 24h, resolution: 72h)
+- **Low**: Minor issues, enhancements, or technical debt (response: 48h, resolution: 168h)
+
+To set an issue's priority, add one of these labels:
+- `priority: critical`
+- `priority: high`
+- `priority: medium`
+- `priority: low`
+
+If no priority label is added, the default priority for the issue type will be used (Bugs: Medium, Features: Low, Technical Debt: Low).
+
+For more details on our SLA process, see the [SLA Monitoring Guide](docs/sla-monitoring.md).
+
 ### Pull Requests
 
 1. Update your fork to the latest code on the main branch
