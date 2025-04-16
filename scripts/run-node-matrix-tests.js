@@ -2,7 +2,7 @@
 
 /**
  * Node.js Matrix Testing Script
- * 
+ *
  * This script helps run tests across multiple Node.js versions using nvm.
  * It requires nvm to be installed on the system.
  */
@@ -69,7 +69,7 @@ function checkNvm() {
       info('NVM found at: ' + nvmPath);
       return true;
     }
-    
+
     // Try running nvm command
     execSync('nvm --version', { stdio: 'ignore' });
     return true;
@@ -84,16 +84,16 @@ function checkNvm() {
 // Main function
 async function runMatrixTests() {
   log('🧪 Running Node.js Matrix Tests', colors.cyan);
-  
+
   // Check if nvm is available
   if (!checkNvm()) {
     process.exit(1);
   }
-  
+
   // Node.js versions to test
   const nodeVersions = ['18', '20', '22'];
   const results = {};
-  
+
   // Save current Node.js version to restore later
   let currentNodeVersion;
   try {
@@ -102,15 +102,15 @@ async function runMatrixTests() {
   } catch (err) {
     warning('Could not determine current Node.js version');
   }
-  
+
   // Run tests for each Node.js version
   for (const version of nodeVersions) {
     log(`\n📌 Testing with Node.js ${version}`, colors.magenta);
-    
+
     // Install Node.js version if not already installed
     info(`Installing Node.js ${version} (if needed)...`);
     runCommand(`nvm install ${version}`, { ignoreError: true });
-    
+
     // Use the installed version
     info(`Switching to Node.js ${version}...`);
     if (!runCommand(`nvm use ${version}`, { ignoreError: true })) {
@@ -118,30 +118,40 @@ async function runMatrixTests() {
       results[version] = 'FAILED';
       continue;
     }
-    
+
     // Verify Node.js version
     const nodeVersion = execSync('node -v').toString().trim();
     info(`Using Node.js ${nodeVersion}`);
-    
-    // Set environment variables for newer Node.js versions
-    if (version !== '18') {
-      process.env.NODE_OPTIONS = '--openssl-legacy-provider';
-      process.env.SKIP_PREFLIGHT_CHECK = 'true';
-      info('Set NODE_OPTIONS=--openssl-legacy-provider for compatibility');
-    }
-    
+
+    // Set environment variables for all Node.js versions
+    process.env.SKIP_PREFLIGHT_CHECK = 'true';
+    info('Set SKIP_PREFLIGHT_CHECK=true for compatibility');
+
+    // We don't need to set NODE_OPTIONS here anymore since we're using specific scripts
+    // that already include the necessary flags
+
     // Run server tests
     info('Running server tests...');
     const serverTestsResult = runCommand('npm run test:server', { ignoreError: true });
-    
-    // Run client tests
+
+    // Run client tests with appropriate script based on Node.js version
     info('Running client tests...');
-    const clientTestsResult = runCommand('npm run test:client', { ignoreError: true });
-    
-    // Try building the project
+    let clientTestsResult;
+    if (version === '18') {
+      clientTestsResult = runCommand('npm run test:client', { ignoreError: true });
+    } else {
+      clientTestsResult = runCommand('npm run test:client:legacy', { ignoreError: true });
+    }
+
+    // Try building the project with appropriate script based on Node.js version
     info('Building project...');
-    const buildResult = runCommand('npm run build', { ignoreError: true });
-    
+    let buildResult;
+    if (version === '18') {
+      buildResult = runCommand('npm run build:node18', { ignoreError: true });
+    } else {
+      buildResult = runCommand('npm run build', { ignoreError: true });
+    }
+
     // Record results
     if (serverTestsResult && clientTestsResult && buildResult) {
       results[version] = 'PASSED';
@@ -152,29 +162,26 @@ async function runMatrixTests() {
       if (!clientTestsResult) error('Client tests failed');
       if (!buildResult) error('Build failed');
     }
-    
+
     // Reset environment variables
-    if (version !== '18') {
-      delete process.env.NODE_OPTIONS;
-      delete process.env.SKIP_PREFLIGHT_CHECK;
-    }
+    delete process.env.SKIP_PREFLIGHT_CHECK;
   }
-  
+
   // Restore original Node.js version
   if (currentNodeVersion) {
     info(`Restoring Node.js ${currentNodeVersion}...`);
     runCommand(`nvm use ${currentNodeVersion.replace('v', '')}`, { ignoreError: true });
   }
-  
+
   // Generate report
   log('\n📊 Node.js Compatibility Report', colors.cyan);
   log('=============================', colors.cyan);
-  
+
   for (const [version, result] of Object.entries(results)) {
     const resultColor = result === 'PASSED' ? colors.green : colors.red;
     log(`Node.js ${version}: ${result}`, resultColor);
   }
-  
+
   // Save report to file
   const reportContent = `# Node.js Compatibility Report
 Generated on ${new Date().toISOString()}
@@ -193,10 +200,10 @@ ${Object.entries(results).map(([version, result]) => `| ${version} | ${result} |
   if (!fs.existsSync(reportsDir)) {
     fs.mkdirSync(reportsDir, { recursive: true });
   }
-  
+
   const reportPath = path.join(reportsDir, `node-compatibility-${new Date().toISOString().split('T')[0]}.md`);
   fs.writeFileSync(reportPath, reportContent);
-  
+
   success(`Report saved to ${reportPath}`);
 }
 

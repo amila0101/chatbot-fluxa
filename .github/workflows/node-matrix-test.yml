@@ -15,30 +15,30 @@ jobs:
   test:
     name: Test on Node.js ${{ matrix.node-version }}
     runs-on: ubuntu-latest
-    
+
     strategy:
       fail-fast: false  # Continue with other versions even if one fails
       matrix:
         node-version: [18.x, 20.x, 22.x]
-    
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
-      
+
       - name: Install Dependencies
         run: |
           npm install
           npm run install-deps
-      
+
       - name: Apply Security Fixes
         run: npm run apply-security-fixes
-      
+
       - name: Run Server Tests
         env:
           CI: true
@@ -46,40 +46,50 @@ jobs:
           MONGODB_URI: mongodb://localhost:27017/test
           AI_API_KEY: dummy-key
         run: npm run test:server
-      
+
       - name: Run Client Tests
         env:
           CI: true
           NODE_ENV: test
           REACT_APP_GEMINI_API_KEY: dummy-key
           SKIP_PREFLIGHT_CHECK: true
-          # Add legacy provider flag for Node.js 20+ to handle OpenSSL issues
-          NODE_OPTIONS: ${{ matrix.node-version != '18.x' && '--openssl-legacy-provider' || '' }}
-        run: npm run test:client
-      
+        run: |
+          if [[ "${{ matrix.node-version }}" == "18.x" ]]; then
+            # For Node.js 18, run tests without the legacy provider flag
+            npm run test:client
+          else
+            # For other versions, use the script with legacy provider flag
+            npm run test:client:legacy
+          fi
+
       - name: Build Project
         env:
           CI: true
           SKIP_PREFLIGHT_CHECK: true
-          # Add legacy provider flag for Node.js 20+ to handle OpenSSL issues
-          NODE_OPTIONS: ${{ matrix.node-version != '18.x' && '--openssl-legacy-provider' || '' }}
-        run: npm run build
-      
+        run: |
+          if [[ "${{ matrix.node-version }}" == "18.x" ]]; then
+            # For Node.js 18, use the specific build script without legacy provider
+            npm run build:node18
+          else
+            # For other versions, use the default build script which includes legacy provider
+            npm run build
+          fi
+
       - name: Report Node.js Version Status
         if: always()
         run: |
           echo "Node.js ${{ matrix.node-version }} test status: ${{ job.status }}"
-  
+
   report:
     name: Generate Compatibility Report
     needs: test
     runs-on: ubuntu-latest
     if: always()
-    
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-      
+
       - name: Create Compatibility Report
         run: |
           echo "# Node.js Compatibility Report" > node-compatibility-report.md
@@ -87,7 +97,7 @@ jobs:
           echo "" >> node-compatibility-report.md
           echo "| Node.js Version | Status |" >> node-compatibility-report.md
           echo "|----------------|--------|" >> node-compatibility-report.md
-          
+
           # Get job status for each Node.js version
           for version in "18.x" "20.x" "22.x"; do
             status="${{ needs.test.result }}"
@@ -97,13 +107,13 @@ jobs:
               echo "| $version | ⚠️ Issues detected |" >> node-compatibility-report.md
             fi
           done
-          
+
           echo "" >> node-compatibility-report.md
           echo "## Notes" >> node-compatibility-report.md
           echo "" >> node-compatibility-report.md
           echo "- Node.js 18.x is the primary supported version" >> node-compatibility-report.md
           echo "- Node.js 20.x and 22.x may require the --openssl-legacy-provider flag for client builds" >> node-compatibility-report.md
-      
+
       - name: Upload Compatibility Report
         uses: actions/upload-artifact@v4
         with:

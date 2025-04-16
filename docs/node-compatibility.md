@@ -52,9 +52,22 @@ NODE_OPTIONS=--openssl-legacy-provider npm run dev
 
 # For building
 NODE_OPTIONS=--openssl-legacy-provider npm run build
+
+# For running tests
+NODE_OPTIONS=--openssl-legacy-provider npm run test:client
 ```
 
-This flag is automatically applied in our CI/CD pipelines for Node.js 20.x and above.
+For convenience, we've added scripts that automatically include this flag:
+
+```bash
+# For development
+npm run dev:safe
+
+# For testing with legacy provider
+npm run test:client:legacy
+```
+
+These flags are automatically applied in our CI/CD pipelines for Node.js 20.x and above.
 
 ### React Scripts Compatibility
 
@@ -86,7 +99,14 @@ SKIP_PREFLIGHT_CHECK=true
 
 ## Local Testing with Multiple Node.js Versions
 
-You can test your changes locally with different Node.js versions using nvm:
+You can test your changes locally with different Node.js versions using nvm. We've added a script to automate this process:
+
+```bash
+# Run tests across all Node.js versions
+npm run test:node-matrix
+```
+
+Or you can test manually with specific versions:
 
 ```bash
 # Install nvm if you haven't already
@@ -100,14 +120,18 @@ npm run verify
 # Test with Node.js 20
 nvm install 20
 nvm use 20
-export NODE_OPTIONS=--openssl-legacy-provider
-npm run verify
+# Use our scripts with legacy provider flags
+npm run test:client:legacy
+npm run test:server
+npm run build
 
 # Test with Node.js 22
 nvm install 22
 nvm use 22
-export NODE_OPTIONS=--openssl-legacy-provider
-npm run verify
+# Use our scripts with legacy provider flags
+npm run test:client:legacy
+npm run test:server
+npm run build
 ```
 
 ## Updating Node.js Support
