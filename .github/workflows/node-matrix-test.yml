@@ -55,7 +55,7 @@ jobs:
           SKIP_PREFLIGHT_CHECK: true
         run: |
           if [[ "${{ matrix.node-version }}" == "18.x" ]]; then
-            # For Node.js 18, run tests without the legacy provider flag
+            # For Node.js 18, use the specific test script without legacy provider
             npm run test:client
           else
             # For other versions, use the script with legacy provider flag
