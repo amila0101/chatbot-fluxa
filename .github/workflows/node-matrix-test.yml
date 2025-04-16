@@ -33,11 +33,14 @@ jobs:
 
       - name: Install Dependencies
         run: |
+          # Install dependencies and run our custom install script
           npm install
           npm run install-deps
 
       - name: Apply Security Fixes
-        run: npm run apply-security-fixes
+        run: |
+          # Use our custom script to apply security fixes
+          npm run apply-security-fixes
 
       - name: Run Server Tests
         env:
@@ -50,7 +53,6 @@ jobs:
       - name: Run Client Tests
         env:
           CI: true
-          NODE_ENV: test
           REACT_APP_GEMINI_API_KEY: dummy-key
           SKIP_PREFLIGHT_CHECK: true
         run: |
@@ -60,15 +62,11 @@ jobs:
       - name: Build Project
         env:
           CI: true
+          NODE_ENV: production
           SKIP_PREFLIGHT_CHECK: true
         run: |
-          if [[ "${{ matrix.node-version }}" == "18.x" ]]; then
-            # For Node.js 18, use the specific build script without legacy provider
-            npm run build:node18
-          else
-            # For other versions, use the default build script which includes legacy provider
-            npm run build
-          fi
+          # Use our custom build script which works with all Node.js versions
+          npm run build:custom
 
       - name: Report Node.js Version Status
         if: always()
