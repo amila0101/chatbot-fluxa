@@ -54,13 +54,8 @@ jobs:
           REACT_APP_GEMINI_API_KEY: dummy-key
           SKIP_PREFLIGHT_CHECK: true
         run: |
-          if [[ "${{ matrix.node-version }}" == "18.x" ]]; then
-            # For Node.js 18, use the specific test script without legacy provider
-            npm run test:client
-          else
-            # For other versions, use the script with legacy provider flag
-            npm run test:client:legacy
-          fi
+          # Use our custom test runner which works with all Node.js versions
+          npm run test:client
 
       - name: Build Project
         env:
