@@ -28,7 +28,7 @@ jobs:
         run: |
           npm install
           npm run install-deps
-          npm audit fix --force
+          npm audit || echo "Audit completed with warnings. Please review manually."
 
       - name: Security Audit and Fix
         run: |
