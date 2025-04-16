@@ -13,7 +13,7 @@ A modern chatbot application built with React and Node.js.
 
 ### Prerequisites
 
-- Node.js 18.x or higher
+- Node.js 18.x or higher (see [Node.js Compatibility Guide](docs/node-compatibility.md))
 - MongoDB
 
 ### Installation

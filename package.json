@@ -26,7 +26,8 @@
     "apply-security-fixes": "node scripts/apply-security-fixes.js",
     "update-deps": "npm update && cd client && npm update && cd ../server && npm update",
     "update-dependabot": "node scripts/update-dependabot.js",
-    "dev:safe": "cross-env NODE_OPTIONS=--openssl-legacy-provider BROWSER=none SKIP_PREFLIGHT_CHECK=true npm run dev"
+    "dev:safe": "cross-env NODE_OPTIONS=--openssl-legacy-provider BROWSER=none SKIP_PREFLIGHT_CHECK=true npm run dev",
+    "test:node-matrix": "node scripts/run-node-matrix-tests.js"
   },
   "engines": {
     "node": ">=18",
