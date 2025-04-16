@@ -44,30 +44,22 @@ You can access these reports from the GitHub Actions workflow runs.
 
 **Issue**: OpenSSL-related errors when building the client application.
 
-**Workaround**: Use the `--openssl-legacy-provider` flag:
+**Workaround**: We've implemented custom build and test scripts that handle these issues automatically:
 
 ```bash
-# For running the development server
-NODE_OPTIONS=--openssl-legacy-provider npm run dev
+# For building (works on all Node.js versions)
+npm run build
 
-# For building
-NODE_OPTIONS=--openssl-legacy-provider npm run build
-
-# For running tests
-NODE_OPTIONS=--openssl-legacy-provider npm run test:client
+# For running tests (works on all Node.js versions)
+npm run test:client
 ```
 
-For convenience, we've added scripts that automatically include this flag:
+These scripts use the necessary flags and configurations for each Node.js version:
 
-```bash
-# For development
-npm run dev:safe
+- For Node.js 20.x and 22.x: Uses the `--openssl-legacy-provider` flag
+- For all versions: Sets `SKIP_PREFLIGHT_CHECK=true`
 
-# For testing with legacy provider
-npm run test:client:legacy
-```
-
-These flags are automatically applied in our CI/CD pipelines for Node.js 20.x and above.
+These configurations are automatically applied in our CI/CD pipelines for all Node.js versions.
 
 ### React Scripts Compatibility
 
@@ -120,19 +112,15 @@ npm run verify
 # Test with Node.js 20
 nvm install 20
 nvm use 20
-# Use our scripts with legacy provider flags
-npm run test:client:legacy
-npm run test:server
-npm run build
+npm run verify
 
 # Test with Node.js 22
 nvm install 22
 nvm use 22
-# Use our scripts with legacy provider flags
-npm run test:client:legacy
-npm run test:server
-npm run build
+npm run verify
 ```
+
+Our custom build and test scripts automatically handle the necessary configurations for each Node.js version, so you can use the same commands across all versions.
 
 ## Updating Node.js Support
 

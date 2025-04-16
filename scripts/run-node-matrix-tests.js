@@ -134,23 +134,13 @@ async function runMatrixTests() {
     info('Running server tests...');
     const serverTestsResult = runCommand('npm run test:server', { ignoreError: true });
 
-    // Run client tests with appropriate script based on Node.js version
+    // Run client tests using our custom test runner
     info('Running client tests...');
-    let clientTestsResult;
-    if (version === '18') {
-      clientTestsResult = runCommand('npm run test:client', { ignoreError: true });
-    } else {
-      clientTestsResult = runCommand('npm run test:client:legacy', { ignoreError: true });
-    }
+    const clientTestsResult = runCommand('npm run test:client', { ignoreError: true });
 
-    // Try building the project with appropriate script based on Node.js version
+    // Try building the project using our custom build script
     info('Building project...');
-    let buildResult;
-    if (version === '18') {
-      buildResult = runCommand('npm run build:node18', { ignoreError: true });
-    } else {
-      buildResult = runCommand('npm run build', { ignoreError: true });
-    }
+    const buildResult = runCommand('npm run build', { ignoreError: true });
 
     // Record results
     if (serverTestsResult && clientTestsResult && buildResult) {

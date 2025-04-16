@@ -6,6 +6,9 @@ const app = require('../server');
 process.env.NODE_ENV = 'test';
 
 // Mock the database connection
+jest.mock('mongoose', () => require('../mocks/mongoose'));
+
+// Mock the chat message model
 jest.mock('../models/chatmessage', () => {
   return {
     create: jest.fn().mockResolvedValue({
