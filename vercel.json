@@ -41,5 +41,8 @@
   ],
   "env": {
     "NODE_ENV": "production"
-  }
+  },
+  "rewrites": [
+    { "source": "/static/(.*)", "destination": "/static/$1" }
+  ]
 }
