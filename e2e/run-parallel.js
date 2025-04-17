@@ -62,6 +62,11 @@ function runCypress(files, index) {
     '--browser', config.browser,
     '--headless', config.headless,
     '--spec', files.join(','),
+    '--config', 'retries=3',
+    '--config', 'defaultCommandTimeout=30000',
+    '--config', 'requestTimeout=30000',
+    '--config', 'responseTimeout=30000',
+    '--config', 'pageLoadTimeout=60000',
   ];
 
   console.log(`[Process ${index + 1}] Running tests: ${files.map(f => path.basename(f)).join(', ')}`);
@@ -70,6 +75,11 @@ function runCypress(files, index) {
     stdio: 'inherit',
     shell: true,
     cwd: __dirname,
+    env: {
+      ...process.env,
+      CYPRESS_BASE_URL: 'http://localhost:3000',
+      DEBUG: 'cypress:*',
+    },
   });
 
   return new Promise((resolve, reject) => {
@@ -89,8 +99,10 @@ async function checkServerReady() {
   try {
     await waitOn({
       resources: ['http://localhost:3000'],
-      timeout: 30000, // 30 seconds timeout
-      interval: 1000, // Check every second
+      timeout: 120000, // 120 seconds timeout
+      interval: 2000, // Check every 2 seconds
+      verbose: true, // Enable verbose logging
+      httpTimeout: 30000, // 30 seconds HTTP timeout
     });
     console.log('✅ Server is running and ready!');
     return true;

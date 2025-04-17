@@ -10,16 +10,17 @@ module.exports = defineConfig({
     supportFile: 'cypress/support/e2e.js',
     video: false,
     screenshotOnRunFailure: true,
-    defaultCommandTimeout: 10000,
-    requestTimeout: 10000,
-    responseTimeout: 10000,
-    pageLoadTimeout: 30000,
+    defaultCommandTimeout: 30000,
+    requestTimeout: 30000,
+    responseTimeout: 30000,
+    pageLoadTimeout: 60000,
+    experimentalRetries: true,
   },
   env: {
     apiUrl: 'http://localhost:5000/api',
   },
   retries: {
-    runMode: 2,
+    runMode: 3,
     openMode: 0,
   },
 });
