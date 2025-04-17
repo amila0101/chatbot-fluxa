@@ -35,7 +35,8 @@
     "test:node-matrix": "node scripts/run-node-matrix-tests.js",
     "synthetic:test": "node run-synthetic-tests.js",
     "synthetic:report": "node generate-report.js",
-    "synthetic:monitor": "node synthetic-scheduler.js"
+    "synthetic:monitor": "node synthetic-scheduler.js",
+    "synthetic:mock-server": "node mock-api-server.js"
   },
   "engines": {
     "node": ">=18",

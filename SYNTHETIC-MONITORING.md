@@ -117,6 +117,20 @@ If you encounter issues:
 3. Check network connectivity
 4. Ensure the test configurations match the actual API endpoints
 
+### Using the Mock API Server
+
+For testing the synthetic monitoring without a real API server, you can use the included mock API server:
+
+```bash
+node mock-api-server.js
+```
+
+This will start a simple HTTP server on port 5000 that responds to the endpoints used in the synthetic monitoring tests. You can then run the synthetic monitoring tests against this mock server:
+
+```bash
+API_URL=http://localhost:5000/api node run-synthetic-tests.js
+```
+
 ## Extending the Monitoring
 
 This synthetic monitoring solution can be extended in several ways:
