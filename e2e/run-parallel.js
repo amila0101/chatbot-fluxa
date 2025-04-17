@@ -8,6 +8,7 @@ const { spawn } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
+const waitOn = require('wait-on');
 
 // Configuration
 const config = {
@@ -24,13 +25,13 @@ const config = {
 // Get all test files
 function getTestFiles() {
   const files = [];
-  
+
   function scanDir(dir) {
     const entries = fs.readdirSync(dir, { withFileTypes: true });
-    
+
     for (const entry of entries) {
       const fullPath = path.join(dir, entry.name);
-      
+
       if (entry.isDirectory()) {
         scanDir(fullPath);
       } else if (entry.isFile() && entry.name.endsWith('.cy.js')) {
@@ -38,7 +39,7 @@ function getTestFiles() {
       }
     }
   }
-  
+
   scanDir(config.testDir);
   return files;
 }
@@ -46,11 +47,11 @@ function getTestFiles() {
 // Split files into chunks for parallel execution
 function splitFiles(files, numChunks) {
   const chunks = Array.from({ length: numChunks }, () => []);
-  
+
   files.forEach((file, index) => {
     chunks[index % numChunks].push(file);
   });
-  
+
   return chunks;
 }
 
@@ -62,15 +63,15 @@ function runCypress(files, index) {
     '--headless', config.headless,
     '--spec', files.join(','),
   ];
-  
+
   console.log(`[Process ${index + 1}] Running tests: ${files.map(f => path.basename(f)).join(', ')}`);
-  
+
   const cypress = spawn('cypress', args, {
     stdio: 'inherit',
     shell: true,
     cwd: __dirname,
   });
-  
+
   return new Promise((resolve, reject) => {
     cypress.on('close', (code) => {
       if (code === 0) {
@@ -82,29 +83,53 @@ function runCypress(files, index) {
   });
 }
 
+// Check if server is running
+async function checkServerReady() {
+  console.log('Checking if server is running at http://localhost:3000...');
+  try {
+    await waitOn({
+      resources: ['http://localhost:3000'],
+      timeout: 30000, // 30 seconds timeout
+      interval: 1000, // Check every second
+    });
+    console.log('✅ Server is running and ready!');
+    return true;
+  } catch (error) {
+    console.error('❌ Server is not running or not responding!');
+    console.error('Please start the server with `npm run start` before running tests.');
+    return false;
+  }
+}
+
 // Main function
 async function main() {
   console.log(`🚀 Running Cypress tests in parallel with ${config.numProcesses} processes`);
-  
+
+  // First check if server is ready
+  const isServerReady = await checkServerReady();
+  if (!isServerReady) {
+    process.exit(1);
+  }
+
   const files = getTestFiles();
   console.log(`Found ${files.length} test files`);
-  
+
   if (files.length === 0) {
     console.log('No test files found. Exiting.');
     return;
   }
-  
+
   // Adjust number of processes if we have fewer files than processes
   const numProcesses = Math.min(files.length, config.numProcesses);
   const chunks = splitFiles(files, numProcesses);
-  
+
   console.log(`Split tests into ${chunks.length} chunks for parallel execution`);
-  
+
   const startTime = Date.now();
-  
+
   try {
     await Promise.all(chunks.map((chunk, index) => runCypress(chunk, index)));
-    
+
     const duration = (Date.now() - startTime) / 1000;
     console.log(`✅ All tests completed successfully in ${duration.toFixed(2)}s`);
   } catch (error) {
