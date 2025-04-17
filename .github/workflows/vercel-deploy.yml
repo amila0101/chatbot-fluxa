@@ -221,9 +221,9 @@ jobs:
             echo "Server is responding to health check. Running full E2E tests..."
             cd e2e
 
-            # Run the E2E tests using the npm script
+            # Run the E2E tests directly
             echo "Running full E2E tests..."
-            npm run test:e2e -- --config video=false || {
+            ./node_modules/.bin/cypress run --config video=false,screenshotOnRunFailure=false || {
               echo "E2E tests failed. Checking server logs..."
               # Print any server logs if available
               cat ../server.log || echo "No server logs found"
@@ -238,8 +238,8 @@ jobs:
             cd e2e
 
             # Run only the basic test that doesn't require the server
-            echo "Running basic Cypress tests..."
-            npm run test:e2e -- --spec "cypress/e2e/basic.cy.js" --config video=false || {
+            echo "Running basic Cypress tests with minimal configuration..."
+            CYPRESS_baseUrl="about:blank" ./node_modules/.bin/cypress run --spec "cypress/e2e/basic.cy.js" --config baseUrl=null,video=false,screenshotOnRunFailure=false,supportFile="cypress/support/basic.js" || {
               echo "Even basic tests failed. Checking Cypress installation..."
               ./node_modules/.bin/cypress verify
               echo "Cypress version: $(./node_modules/.bin/cypress version)"

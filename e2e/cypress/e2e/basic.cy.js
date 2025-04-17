@@ -7,4 +7,14 @@ describe('Basic Test', () => {
     expect(true).to.equal(true);
     cy.log('Basic test passed successfully');
   });
+
+  it('should run a custom basic test command', () => {
+    // Use our custom command that doesn't require a server
+    cy.basicTest();
+  });
+
+  // Skip any test that might try to visit a URL
+  it.skip('should visit a page', () => {
+    cy.visit('/');
+  });
 });

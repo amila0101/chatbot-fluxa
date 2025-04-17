@@ -1,6 +1,12 @@
 const { defineConfig } = require('cypress');
 
 module.exports = defineConfig({
+  // CI-specific configuration
+  ...(process.env.CI ? {
+    video: false,
+    screenshotOnRunFailure: false,
+    trashAssetsBeforeRuns: true,
+  } : {}),
   e2e: {
     baseUrl: 'http://localhost:5000',
     setupNodeEvents(on, config) {
