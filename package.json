@@ -32,15 +32,20 @@
     "update-deps": "npm update && cd client && npm update && cd ../server && npm update",
     "update-dependabot": "node scripts/update-dependabot.js",
     "dev:safe": "cross-env NODE_OPTIONS=--openssl-legacy-provider BROWSER=none SKIP_PREFLIGHT_CHECK=true npm run dev",
-    "test:node-matrix": "node scripts/run-node-matrix-tests.js"
+    "test:node-matrix": "node scripts/run-node-matrix-tests.js",
+    "synthetic:test": "node run-synthetic-tests.js",
+    "synthetic:report": "node generate-report.js",
+    "synthetic:monitor": "node synthetic-scheduler.js"
   },
   "engines": {
     "node": ">=18",
     "npm": ">=9"
   },
   "devDependencies": {
+    "axios": "^1.8.4",
     "concurrently": "^8.0.0",
     "cross-env": "^7.0.3",
+    "node-cron": "^3.0.3",
     "rimraf": "^6.0.1",
     "yaml": "^2.3.4"
   }
