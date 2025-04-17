@@ -5,19 +5,25 @@ const logger = require('../utils/logger');
 morgan.token('body', (req) => {
   // Don't log sensitive information
   const safeBody = { ...req.body };
-  
+
   // Mask sensitive fields if they exist
   if (safeBody.password) safeBody.password = '******';
   if (safeBody.token) safeBody.token = '******';
   if (safeBody.apiKey) safeBody.apiKey = '******';
-  
+
   return JSON.stringify(safeBody);
 });
 
 // Define a custom token for response time in a more readable format
 morgan.token('response-time-formatted', (req, res) => {
   const time = morgan['response-time'](req, res);
-  return time ? `${time.toFixed(2)}ms` : '';
+  if (time && typeof time === 'number') {
+    return `${time.toFixed(2)}ms`;
+  } else if (time) {
+    return `${time}ms`;
+  } else {
+    return '';
+  }
 });
 
 // Define a custom token for trace ID (will be used with OpenTelemetry)

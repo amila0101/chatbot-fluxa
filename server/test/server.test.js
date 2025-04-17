@@ -1,23 +1,8 @@
 const request = require('supertest');
-const express = require('express');
-const app = require('../server');
+const app = require('./mockServer');
 
 // Set test environment
 process.env.NODE_ENV = 'test';
-
-// Mock the database connection
-jest.mock('mongoose', () => require('../mocks/mongoose'));
-
-// Mock the chat message model
-jest.mock('../models/chatmessage', () => {
-  return {
-    create: jest.fn().mockResolvedValue({
-      userMessage: 'test',
-      botResponse: 'test response',
-      timestamp: new Date()
-    })
-  };
-});
 
 describe('Server Tests', () => {
   describe('Health Check', () => {
