@@ -40,23 +40,6 @@
     }
   ],
   "env": {
-    "NODE_ENV": "production",
-    "ENVIRONMENT_NAME": "blue"
-  },
-  "github": {
-    "enabled": false,
-    "silent": true
-  },
-  "regions": ["iad1", "sfo1"],
-  "headers": [
-    {
-      "source": "/api/health",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "no-cache, no-store, must-revalidate"
-        }
-      ]
-    }
-  ]
+    "NODE_ENV": "production"
+  }
 }
