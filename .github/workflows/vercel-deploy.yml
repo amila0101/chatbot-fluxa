@@ -168,6 +168,32 @@ jobs:
       - name: Run E2E Tests
         if: matrix.test-type == 'e2e'
         run: |
+          # Define cleanup function at the top level
+          cleanup_process() {
+            if [ -f "$1" ]; then
+              echo "Cleanup: Attempting to stop process from $1..."
+              PID=$(cat "$1")
+              if ps -p "$PID" > /dev/null 2>&1; then
+                echo "Cleanup: Process $PID is running, stopping it..."
+                kill "$PID" || echo "Cleanup: Failed to kill process $PID"
+              else
+                echo "Cleanup: Process $PID is not running"
+              fi
+              rm "$1"
+            fi
+          }
+
+          # Function to clean up all processes
+          cleanup_all() {
+            echo "Running global cleanup..."
+            cleanup_process "server.pid"
+            cleanup_process "mock-server.pid"
+            pkill -f "node server.js" || echo "No server processes found"
+            pkill -f "node mock-server.js" || echo "No mock server processes found"
+          }
+
+          # Set trap to ensure cleanup happens even if script is interrupted
+          trap cleanup_all EXIT
           echo "Checking server status before running tests..."
           curl -v http://localhost:5000/api/health || echo "Server may not be responding properly"
 
@@ -179,12 +205,6 @@ jobs:
               echo "E2E tests failed. Checking server logs..."
               # Print any server logs if available
               cat ../server.log || echo "No server logs found"
-              # Continue with cleanup even if tests fail
-              if [ -f ../server.pid ]; then
-                echo "Stopping server..."
-                kill $(cat ../server.pid) || true
-                rm ../server.pid
-              fi
               exit 1
             }
           else
@@ -199,19 +219,7 @@ jobs:
 
           echo "E2E tests completed successfully"
 
-          # Kill the server process
-          if [ -f ../server.pid ]; then
-            echo "Stopping server..."
-            kill $(cat ../server.pid) || true
-            rm ../server.pid
-          fi
-
-          # Kill the mock server if it was started
-          if [ -f ../mock-server.pid ]; then
-            echo "Stopping mock server..."
-            kill $(cat ../mock-server.pid) || true
-            rm ../mock-server.pid
-          fi
+          # Final cleanup is handled by the trap
         env:
           CI: true
           CYPRESS_BASE_URL: http://localhost:5000
