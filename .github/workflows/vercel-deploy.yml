@@ -175,20 +175,6 @@ jobs:
           pkill -f "node mock-server.js" || echo "No mock server processes found"
           rm -f server.pid mock-server.pid || echo "No PID files to remove"
 
-          # Install Cypress globally to ensure it's available
-          echo "Installing Cypress globally..."
-          npm install -g cypress
-
-          # Verify Cypress installation
-          echo "Verifying Cypress installation..."
-          cypress verify || echo "Cypress verification failed, but continuing"
-
-          # Install e2e dependencies
-          echo "Installing e2e dependencies..."
-          cd e2e
-          npm install
-          cd ..
-
           # Create a cleanup script that will be called at the end
           cat > cleanup.sh << 'EOF'
           #!/bin/bash
@@ -213,6 +199,16 @@ jobs:
 
           chmod +x cleanup.sh
 
+      # Use the official Cypress GitHub Action
+      - name: Cypress Setup
+        if: matrix.test-type == 'e2e'
+        uses: cypress-io/github-action@v6
+        with:
+          working-directory: e2e
+          install: true
+          build: npm run build
+          runTests: false # We'll run tests manually
+
       - name: Run E2E Tests
         if: matrix.test-type == 'e2e'
         id: run_e2e_tests
@@ -225,13 +221,9 @@ jobs:
             echo "Server is responding to health check. Running full E2E tests..."
             cd e2e
 
-            # Verify Cypress is available
-            echo "Verifying Cypress is available..."
-            cypress version || echo "Using npx as fallback"
-
-            # Run the E2E tests
+            # Run the E2E tests using the Cypress binary installed by the GitHub Action
             echo "Running full E2E tests..."
-            DEBUG=cypress:* cypress run || {
+            DEBUG=cypress:* npx cypress run --config video=false || {
               echo "E2E tests failed. Checking server logs..."
               # Print any server logs if available
               cat ../server.log || echo "No server logs found"
@@ -245,13 +237,9 @@ jobs:
             echo "Server is not responding to health check. Running basic tests only..."
             cd e2e
 
-            # Verify Cypress is available
-            echo "Verifying Cypress is available..."
-            cypress version || echo "Using npx as fallback"
-
             # Run only the basic test that doesn't require the server
             echo "Running basic Cypress tests..."
-            DEBUG=cypress:* npx cypress run --spec "cypress/e2e/basic.cy.js" || {
+            DEBUG=cypress:* npx cypress run --spec "cypress/e2e/basic.cy.js" --config video=false || {
               echo "Even basic tests failed. Checking Cypress installation..."
               npx cypress verify
               echo "Cypress binary path: $(npx cypress info)"
