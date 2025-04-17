@@ -1,0 +1,88 @@
+name: Rollback Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to rollback to'
+        required: true
+        default: 'previous'
+        type: choice
+        options:
+          - previous
+          - blue
+          - green
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm install
+      
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+      
+      - name: Rollback deployment
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          PRODUCTION_DOMAIN: ${{ secrets.PRODUCTION_DOMAIN || 'chatbot-fluxa.com' }}
+          BLUE_DOMAIN: ${{ secrets.BLUE_DOMAIN || 'blue.chatbot-fluxa.com' }}
+          GREEN_DOMAIN: ${{ secrets.GREEN_DOMAIN || 'green.chatbot-fluxa.com' }}
+        run: |
+          if [[ "${{ github.event.inputs.environment }}" == "previous" ]]; then
+            echo "Rolling back to previous environment..."
+            npm run rollback
+          elif [[ "${{ github.event.inputs.environment }}" == "blue" ]]; then
+            echo "Rolling back to blue environment..."
+            npm run deploy:blue-green --env=blue
+          elif [[ "${{ github.event.inputs.environment }}" == "green" ]]; then
+            echo "Rolling back to green environment..."
+            npm run deploy:blue-green --env=green
+          fi
+      
+      - name: Verify rollback
+        run: |
+          # Verify the rollback by checking the health endpoint
+          DOMAIN="${{ secrets.PRODUCTION_DOMAIN || 'chatbot-fluxa.com' }}"
+          HEALTH_URL="https://${DOMAIN}/api/health"
+          
+          echo "Verifying rollback at $HEALTH_URL"
+          
+          # Try up to 5 times with a 10-second delay between attempts
+          for i in {1..5}; do
+            echo "Attempt $i/5..."
+            if curl -s "$HEALTH_URL" | grep -q '"status":"ok"'; then
+              echo "Rollback verified successfully!"
+              exit 0
+            else
+              echo "Verification failed, retrying in 10 seconds..."
+              sleep 10
+            fi
+          done
+          
+          echo "Rollback verification failed after 5 attempts"
+          exit 1
+      
+      - name: Notify on success
+        if: success()
+        run: |
+          echo "Rollback completed successfully"
+          # Add notification logic here (e.g., Slack, email)
+      
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "Rollback failed"
+          # Add notification logic here (e.g., Slack, email)
