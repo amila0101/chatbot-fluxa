@@ -8,7 +8,8 @@
     "test:e2e:open": "cypress open",
     "test:e2e:chrome": "cypress run --browser chrome",
     "test:e2e:firefox": "cypress run --browser firefox",
-    "test:e2e:parallel": "node run-parallel.js"
+    "test:e2e:parallel": "node run-parallel.js",
+    "build": "echo 'No build required for E2E tests'"
   },
   "dependencies": {
     "cypress": "^13.6.0",

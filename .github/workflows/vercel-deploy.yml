@@ -221,16 +221,16 @@ jobs:
             echo "Server is responding to health check. Running full E2E tests..."
             cd e2e
 
-            # Run the E2E tests using the Cypress binary installed by the GitHub Action
+            # Run the E2E tests using the npm script
             echo "Running full E2E tests..."
-            DEBUG=cypress:* npx cypress run --config video=false || {
+            npm run test:e2e -- --config video=false || {
               echo "E2E tests failed. Checking server logs..."
               # Print any server logs if available
               cat ../server.log || echo "No server logs found"
               # Check Cypress installation
               echo "Checking Cypress installation..."
-              npx cypress verify
-              echo "Cypress binary path: $(npx cypress info)"
+              ./node_modules/.bin/cypress verify
+              echo "Cypress version: $(./node_modules/.bin/cypress version)"
               exit 1
             }
           else
@@ -239,10 +239,10 @@ jobs:
 
             # Run only the basic test that doesn't require the server
             echo "Running basic Cypress tests..."
-            DEBUG=cypress:* npx cypress run --spec "cypress/e2e/basic.cy.js" --config video=false || {
+            npm run test:e2e -- --spec "cypress/e2e/basic.cy.js" --config video=false || {
               echo "Even basic tests failed. Checking Cypress installation..."
-              npx cypress verify
-              echo "Cypress binary path: $(npx cypress info)"
+              ./node_modules/.bin/cypress verify
+              echo "Cypress version: $(./node_modules/.bin/cypress version)"
               exit 1
             }
           fi
