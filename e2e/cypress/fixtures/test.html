@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Cypress Test Page</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    h1 {
+      color: #333;
+    }
+    .test-element {
+      padding: 10px;
+      border: 1px solid #ccc;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Cypress Test Page</h1>
+  <div class="test-element" id="test1">Test Element 1</div>
+  <div class="test-element" id="test2">Test Element 2</div>
+  <button id="testButton">Click Me</button>
+  
+  <script>
+    // Simple script to handle button click
+    document.getElementById('testButton').addEventListener('click', function() {
+      const newElement = document.createElement('div');
+      newElement.className = 'test-element';
+      newElement.id = 'test3';
+      newElement.textContent = 'Test Element 3 (Added)';
+      document.body.appendChild(newElement);
+    });
+  </script>
+</body>
+</html>

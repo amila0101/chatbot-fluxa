@@ -1,9 +1,15 @@
-// This is a minimal test that doesn't require any server or network access
+// This is a minimal test that uses a local HTML file instead of a server
 
 describe('Minimal Test', () => {
-  // Before each test, disable network requests
   beforeEach(() => {
-    cy.intercept('*', { statusCode: 200, body: 'Intercepted' }).as('anyRequest');
+    // Load the local HTML file from fixtures
+    cy.fixture('test.html').then((html) => {
+      // Create a new document with the HTML content
+      cy.document().then((doc) => {
+        doc.write(html);
+        doc.close();
+      });
+    });
   });
 
   it('should pass a simple assertion', () => {
@@ -12,8 +18,14 @@ describe('Minimal Test', () => {
     cy.log('Basic test passed successfully');
   });
 
-  it('should verify Cypress is working correctly', () => {
-    // Test Cypress functionality without network requests
-    cy.wrap({ key: 'value' }).should('have.property', 'key', 'value');
+  it('should interact with the test HTML page', () => {
+    // Test Cypress functionality with the local HTML
+    cy.get('h1').should('contain', 'Cypress Test Page');
+    cy.get('#test1').should('exist');
+    cy.get('#test2').should('exist');
+
+    // Test interaction
+    cy.get('#testButton').click();
+    cy.get('#test3').should('exist');
   });
 });

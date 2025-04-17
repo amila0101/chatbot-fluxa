@@ -1,28 +1,44 @@
 const { defineConfig } = require('cypress');
+const fs = require('fs');
+const path = require('path');
 
 module.exports = defineConfig({
   // CI-specific configuration
   video: false,
   screenshotOnRunFailure: false,
   trashAssetsBeforeRuns: true,
-  
-  e2e: {
-    // Use a dummy URL that won't be accessed
-    baseUrl: 'http://localhost:8000',
-    setupNodeEvents(on, config) {
-      // implement node event listeners here
-      console.log('Using basic configuration');
-      return config;
+  chromeWebSecurity: false,
+
+  component: {
+    // Use component testing mode instead of e2e
+    // This doesn't require a server to be running
+    devServer: {
+      framework: 'react',
+      bundler: 'webpack',
+      // Use a simple static server that serves the fixtures directory
+      webpackConfig: {
+        devServer: {
+          static: {
+            directory: path.join(__dirname, 'cypress/fixtures'),
+          },
+          port: 8080,
+        },
+      },
     },
     specPattern: 'cypress/e2e/basic.cy.js',
     supportFile: 'cypress/support/basic.js',
-    experimentalRunAllSpecs: false,
+    indexHtmlFile: 'cypress/fixtures/test.html',
   },
-  // Disable any network requests
-  blockHosts: ['*'],
+
   // Increase timeouts
   defaultCommandTimeout: 5000,
   requestTimeout: 5000,
   responseTimeout: 5000,
   pageLoadTimeout: 10000,
+
+  // Override the testFiles setting to use our basic test
+  testFiles: 'cypress/e2e/basic.cy.js',
+
+  // Override the baseUrl to use the file:// protocol
+  baseUrl: `file://${path.join(__dirname, 'cypress/fixtures/test.html')}`,
 });

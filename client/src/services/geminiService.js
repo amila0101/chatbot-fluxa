@@ -1,70 +1,134 @@
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent'; 
+import { createSpan } from '../utils/tracing';
+import logger from '../utils/logger';
 
-const GEMINI_API_KEY = 'AIzaSyCYM8XiqTB0s1wmY5kYTdqF4uWhDDj5Twg'; // Replace with process.env.REACT_APP_GEMINI_API_KEY for production
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent';
+
+// Use environment variable for API key
+const GEMINI_API_KEY = process.env.REACT_APP_GEMINI_API_KEY || 'AIzaSyCYM8XiqTB0s1wmY5kYTdqF4uWhDDj5Twg';
 
 export const generateGeminiResponse = async (prompt) => {
-  try {
-    if (!GEMINI_API_KEY) {
-      throw new Error('Gemini API key is not configured');
+  // Create a span for the Gemini API call
+  return createSpan('gemini.generateContent', async (span) => {
+    try {
+      // Add attributes to the span
+      span.setAttribute('prompt.length', prompt.length);
+
+      // Log the API call
+      logger.info('Calling Gemini API', {
+        promptLength: prompt.length
+      });
+
+      if (!GEMINI_API_KEY) {
+        logger.error('Gemini API key is not configured');
+        throw new Error('Gemini API key is not configured');
+      }
+
+      // List available models (wrapped in a child span)
+      const models = await createSpan('gemini.listModels', async (childSpan) => {
+        const listModelsUrl = `https://generativelanguage.googleapis.com/v1/models?key=${GEMINI_API_KEY}`;
+        const modelResponse = await fetch(listModelsUrl);
+        const modelsData = await modelResponse.json();
+        logger.debug('Available Gemini models', { count: modelsData.models?.length || 0 });
+        return modelsData;
+      });
+
+      // Generate content (wrapped in a child span)
+      const startTime = performance.now();
+      const response = await createSpan('gemini.fetchResponse', async (childSpan) => {
+        const apiUrlWithKey = `${GEMINI_API_URL}?key=${GEMINI_API_KEY}`;
+        const res = await fetch(apiUrlWithKey, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            contents: [{
+              parts: [{
+                text: prompt
+              }]
+            }],
+            generationConfig: {
+              temperature: 0.3,
+              topK: 20,
+              topP: 0.8,
+              maxOutputTokens: 2048,
+              stopSequences: ["\n\n"]
+            },
+            safetySettings: [
+              { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
+              { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
+              { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
+              { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_MEDIUM_AND_ABOVE" }
+            ]
+          })
+        });
+
+        childSpan.setAttribute('http.status_code', res.status);
+        return res;
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        const errorMessage = `Gemini API failed with status ${response.status}: ${errorData?.error?.message || 'Unknown error'}`;
+
+        logger.error(errorMessage, {
+          status: response.status,
+          error: errorData?.error
+        });
+
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+      if (!data.candidates || !data.candidates.length) {
+        logger.error('No response generated from Gemini API', { data });
+        throw new Error('No response generated from Gemini API');
+      }
+
+      const generatedText = data.candidates[0]?.content?.parts?.[0]?.text;
+      if (!generatedText) {
+        logger.error('Invalid response format from Gemini API', { data });
+        throw new Error('Invalid response format from Gemini API: Missing text content');
+      }
+
+      // Process the response (wrapped in a child span)
+      const result = await createSpan('gemini.processResponse', async (childSpan) => {
+        const formattedText = formatText(generatedText);
+        const contentType = detectContentType(formattedText);
+        childSpan.setAttribute('content.type', contentType);
+        childSpan.setAttribute('content.length', formattedText.length);
+        return enhanceFormatting(formattedText, contentType);
+      });
+
+      const duration = performance.now() - startTime;
+
+      // Add more attributes to the span
+      span.setAttribute('response.length', result.length);
+      span.setAttribute('response.duration_ms', duration);
+
+      // Log the successful response
+      logger.info('Gemini API response received', {
+        duration,
+        responseLength: result.length,
+        promptLength: prompt.length
+      });
+
+      return result;
+    } catch (error) {
+      // Log the error
+      logger.error(`Gemini API Error: ${error.message}`, {
+        error: error.message,
+        stack: error.stack
+      });
+
+      // Add error details to the span
+      span.setAttribute('error', true);
+      span.setAttribute('error.message', error.message);
+      span.setAttribute('error.type', error.name);
+
+      throw new Error(error.message || 'Failed to get response from Gemini API');
     }
-
-    const listModelsUrl = `https://generativelanguage.googleapis.com/v1/models?key=${GEMINI_API_KEY}`;
-    const modelResponse = await fetch(listModelsUrl);
-    const models = await modelResponse.json();
-    console.log('Available models:', models);
-
-    const apiUrlWithKey = `${GEMINI_API_URL}?key=${GEMINI_API_KEY}`;
-    const response = await fetch(apiUrlWithKey, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: prompt
-          }]
-        }],
-        generationConfig: {
-          temperature: 0.3,
-          topK: 20,
-          topP: 0.8,
-          maxOutputTokens: 2048,
-          stopSequences: ["\n\n"]
-        },
-        safetySettings: [
-          { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
-          { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
-          { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
-          { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_MEDIUM_AND_ABOVE" }
-        ]
-      })
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
-      throw new Error(
-        `Gemini API failed with status ${response.status}: ${errorData?.error?.message || 'Unknown error'}`
-      );
-    }
-
-    const data = await response.json();
-    if (!data.candidates || !data.candidates.length) {
-      throw new Error('No response generated from Gemini API');
-    }
-
-    const generatedText = data.candidates[0]?.content?.parts?.[0]?.text;
-    if (!generatedText) {
-      throw new Error('Invalid response format from Gemini API: Missing text content');
-    }
-
-    const formattedText = formatText(generatedText);
-    const contentType = detectContentType(formattedText);
-    return enhanceFormatting(formattedText, contentType);
-  } catch (error) {
-    console.error('Gemini API Error:', error);
-    throw new Error(error.message || 'Failed to get response from Gemini API');
-  }
+  });
 };
 
 // Clean and format the response text
