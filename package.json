@@ -10,9 +10,14 @@
     "install-deps": "npm install && cd client && npm install && cd ../server && npm install",
     "start": "npm run start --workspace=server",
     "dev": "concurrently \"npm run start --workspace=server\" \"cd client && cross-env NODE_OPTIONS=--openssl-legacy-provider SKIP_PREFLIGHT_CHECK=true npm start\"",
-    "build": "cd client && cross-env NODE_OPTIONS=--openssl-legacy-provider SKIP_PREFLIGHT_CHECK=true npm run build",
-    "test:client": "cd client && npm test",
+    "build": "cd client && npm run build:custom",
+    "build:node18": "cd client && cross-env SKIP_PREFLIGHT_CHECK=true npm run build",
+    "test:client": "cd client && npm run test:custom",
+    "test:client:legacy": "cd client && npm run test:custom",
     "test:server": "npm run test --workspace=server",
+    "test:e2e": "cd e2e && npm run test:e2e",
+    "test:e2e:parallel": "cd e2e && npm run test:e2e:parallel",
+    "test:parallel": "concurrently --kill-others-on-fail \"npm run test:client\" \"npm run test:server\" \"npm run test:e2e:parallel\"",
     "lint": "npm run lint --workspaces --if-present",
     "clean": "rimraf node_modules **/node_modules",
     "verify": "npm run lint && npm run test:client && npm run test:server",
@@ -26,7 +31,8 @@
     "apply-security-fixes": "node scripts/apply-security-fixes.js",
     "update-deps": "npm update && cd client && npm update && cd ../server && npm update",
     "update-dependabot": "node scripts/update-dependabot.js",
-    "dev:safe": "cross-env NODE_OPTIONS=--openssl-legacy-provider BROWSER=none SKIP_PREFLIGHT_CHECK=true npm run dev"
+    "dev:safe": "cross-env NODE_OPTIONS=--openssl-legacy-provider BROWSER=none SKIP_PREFLIGHT_CHECK=true npm run dev",
+    "test:node-matrix": "node scripts/run-node-matrix-tests.js"
   },
   "engines": {
     "node": ">=18",
