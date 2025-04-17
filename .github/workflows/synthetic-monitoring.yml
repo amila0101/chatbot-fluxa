@@ -1,0 +1,97 @@
+name: Synthetic Monitoring
+
+on:
+  # Run on schedule
+  schedule:
+    - cron: '0 */6 * * *'  # Every 6 hours
+  
+  # Allow manual triggering
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to test'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - development
+          - staging
+          - production
+      test:
+        description: 'Specific test to run (leave empty for all)'
+        required: false
+        type: string
+
+jobs:
+  synthetic-tests:
+    name: Run Synthetic Tests
+    runs-on: ubuntu-latest
+    
+    env:
+      NODE_ENV: ${{ github.event.inputs.environment || 'staging' }}
+      TEST_ADMIN_TOKEN: ${{ secrets.TEST_ADMIN_TOKEN }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      SLACK_CHANNEL: '#monitoring-alerts'
+      ALERT_EMAIL_RECIPIENTS: ${{ secrets.ALERT_EMAIL_RECIPIENTS }}
+      ALERT_EMAIL_FROM: 'monitoring@chatbot-fluxa.com'
+      RUN_ID: ${{ github.run_id }}
+      
+      # URLs for different environments
+      STAGING_API_URL: 'https://staging-api.chatbot-fluxa.com/api'
+      STAGING_WEB_URL: 'https://staging.chatbot-fluxa.com'
+      PRODUCTION_API_URL: 'https://api.chatbot-fluxa.com/api'
+      PRODUCTION_WEB_URL: 'https://chatbot-fluxa.com'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'monitoring/package.json'
+      
+      - name: Install dependencies
+        working-directory: monitoring
+        run: npm install
+      
+      - name: Run synthetic tests
+        working-directory: monitoring
+        run: |
+          if [ -n "${{ github.event.inputs.test }}" ]; then
+            echo "Running specific test: ${{ github.event.inputs.test }}"
+            node index.js --test ${{ github.event.inputs.test }} --environment ${{ env.NODE_ENV }} --verbose
+          else
+            echo "Running all tests"
+            node index.js --all --environment ${{ env.NODE_ENV }} --verbose
+          fi
+      
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: monitoring/screenshots
+          retention-days: 7
+      
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs
+          path: monitoring/logs
+          retention-days: 7
+      
+      - name: Notify on failure
+        if: failure()
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_CHANNEL: '#monitoring-alerts'
+          SLACK_COLOR: 'danger'
+          SLACK_ICON: 'https://github.com/rtCamp.png?size=48'
+          SLACK_MESSAGE: 'Synthetic monitoring tests failed! Check the GitHub Actions run for details.'
+          SLACK_TITLE: 'Synthetic Monitoring Failure'
+          SLACK_USERNAME: 'GitHub Actions'

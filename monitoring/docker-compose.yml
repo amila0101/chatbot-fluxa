@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  synthetic-monitoring:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: chatbot-synthetic-monitoring
+    restart: unless-stopped
+    volumes:
+      - ./logs:/usr/src/app/logs
+      - ./screenshots:/usr/src/app/screenshots
+    environment:
+      - NODE_ENV=production
+      - LOG_LEVEL=info
+      - STAGING_API_URL=https://staging-api.chatbot-fluxa.com/api
+      - STAGING_WEB_URL=https://staging.chatbot-fluxa.com
+      - PRODUCTION_API_URL=https://api.chatbot-fluxa.com/api
+      - PRODUCTION_WEB_URL=https://chatbot-fluxa.com
+      - TEST_ADMIN_TOKEN=${TEST_ADMIN_TOKEN}
+      - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL}
+      - SLACK_CHANNEL=${SLACK_CHANNEL}
+      - ALERT_EMAIL_RECIPIENTS=${ALERT_EMAIL_RECIPIENTS}
+      - ALERT_EMAIL_FROM=${ALERT_EMAIL_FROM}
+    networks:
+      - monitoring-network
+
+networks:
+  monitoring-network:
+    driver: bridge
