@@ -96,7 +96,13 @@ jobs:
           npm audit fix --force
       - name: Security Audit and Fix
         run: npm run apply-security-fixes
-      - name: Build and Deploy
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+      - name: Pull Vercel Environment Information
+        run: |
+          # Try to pull environment info, but continue even if it fails
+          vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN || 'dummy-token' }} || echo "Vercel pull failed, but continuing with deployment"
+      - name: Build Project Artifacts
         env:
           REACT_APP_GEMINI_API_KEY: ${{ secrets.REACT_APP_GEMINI_API_KEY || 'dummy-key' }}
           MONGODB_URI: ${{ secrets.MONGODB_URI || 'mongodb://localhost:27017/test' }}
@@ -105,7 +111,9 @@ jobs:
           SKIP_PREFLIGHT_CHECK: true
           NODE_OPTIONS: --openssl-legacy-provider
         run: |
-          npm install --global vercel@latest
-          vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN || 'dummy-token' }} || echo "Pull failed"
+          # Try to build with Vercel, fallback to regular build if it fails
           vercel build --prod --token=${{ secrets.VERCEL_TOKEN || 'dummy-token' }} || npm run build
-          vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN || 'dummy-token' }} || echo "Deploy failed"
+      - name: Deploy Project Artifacts to Vercel
+        run: |
+          # Try to deploy with Vercel CLI, but don't fail the workflow if it doesn't work
+          vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN || 'dummy-token' }} || echo "Vercel deployment failed. Please set up Vercel project manually."
