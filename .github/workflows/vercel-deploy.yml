@@ -61,9 +61,11 @@ jobs:
           npm install
           cd ..
 
-          echo "Starting server in development mode for better debugging..."
-          NODE_ENV=test MONGODB_URI=mongodb://localhost:27017/test npm run dev > server.log 2>&1 &
-          echo $! > server.pid
+          echo "Starting server only (without client) for E2E tests..."
+          cd server
+          NODE_ENV=test MONGODB_URI=mongodb://localhost:27017/test npm start > ../server.log 2>&1 &
+          echo $! > ../server.pid
+          cd ..
 
           # Give the server a moment to start up
           sleep 5
@@ -77,8 +79,17 @@ jobs:
 
           echo "Waiting for server to be ready..."
           # Wait for server to be available with increased timeout
-          npx wait-on -v http://localhost:3000 -t 120000 --httpTimeout 30000
+          # The server typically runs on port 5000, not 3000
+          npx wait-on -v http://localhost:5000/api/health -t 120000 --httpTimeout 30000
           echo "Server is ready!"
+
+          # Verify server is responding correctly
+          echo "Verifying server health endpoint..."
+          curl -v http://localhost:5000/api/health || {
+            echo "Server health check failed. Checking logs:"
+            cat server.log
+            exit 1
+          }
         env:
           CI: true
           NODE_ENV: test
@@ -108,7 +119,7 @@ jobs:
         if: matrix.test-type == 'e2e'
         run: |
           echo "Checking server status before running tests..."
-          curl -v http://localhost:3000 || echo "Server may not be responding properly"
+          curl -v http://localhost:5000/api/health || echo "Server may not be responding properly"
 
           echo "Running E2E tests with debug mode..."
           cd e2e
@@ -135,7 +146,7 @@ jobs:
           fi
         env:
           CI: true
-          CYPRESS_BASE_URL: http://localhost:3000
+          CYPRESS_BASE_URL: http://localhost:5000
           # Increase Cypress timeouts
           CYPRESS_DEFAULT_COMMAND_TIMEOUT: 10000
           CYPRESS_DEFAULT_TIMEOUT: 10000

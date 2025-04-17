@@ -77,7 +77,7 @@ function runCypress(files, index) {
     cwd: __dirname,
     env: {
       ...process.env,
-      CYPRESS_BASE_URL: 'http://localhost:3000',
+      CYPRESS_BASE_URL: 'http://localhost:5000',
       DEBUG: 'cypress:*',
     },
   });
@@ -95,10 +95,10 @@ function runCypress(files, index) {
 
 // Check if server is running
 async function checkServerReady() {
-  console.log('Checking if server is running at http://localhost:3000...');
+  console.log('Checking if server is running at http://localhost:5000/api/health...');
   try {
     await waitOn({
-      resources: ['http://localhost:3000'],
+      resources: ['http://localhost:5000/api/health'],
       timeout: 120000, // 120 seconds timeout
       interval: 2000, // Check every 2 seconds
       verbose: true, // Enable verbose logging
