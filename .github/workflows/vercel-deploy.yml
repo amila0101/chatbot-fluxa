@@ -239,7 +239,8 @@ jobs:
 
             # Run only the basic test that doesn't require the server
             echo "Running basic Cypress tests with minimal configuration..."
-            CYPRESS_baseUrl="about:blank" ./node_modules/.bin/cypress run --spec "cypress/e2e/basic.cy.js" --config baseUrl=null,video=false,screenshotOnRunFailure=false,supportFile="cypress/support/basic.js" || {
+            # Use a special configuration file for basic tests
+            ./node_modules/.bin/cypress run --config-file cypress-basic.config.js || {
               echo "Even basic tests failed. Checking Cypress installation..."
               ./node_modules/.bin/cypress verify
               echo "Cypress version: $(./node_modules/.bin/cypress version)"
