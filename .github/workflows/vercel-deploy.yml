@@ -165,35 +165,44 @@ jobs:
           MONGODB_URI: mongodb://localhost:27017/test
           AI_API_KEY: dummy-key
 
-      - name: Run E2E Tests
+      # Add a separate step just for cleanup to ensure it always runs
+      - name: Prepare E2E Test Environment
         if: matrix.test-type == 'e2e'
         run: |
-          # Define cleanup function at the top level
-          cleanup_process() {
-            if [ -f "$1" ]; then
-              echo "Cleanup: Attempting to stop process from $1..."
-              PID=$(cat "$1")
-              if ps -p "$PID" > /dev/null 2>&1; then
-                echo "Cleanup: Process $PID is running, stopping it..."
-                kill "$PID" || echo "Cleanup: Failed to kill process $PID"
-              else
-                echo "Cleanup: Process $PID is not running"
-              fi
-              rm "$1"
+          # Make sure no leftover processes are running
+          echo "Cleaning up any existing processes..."
+          pkill -f "node server.js" || echo "No server processes found"
+          pkill -f "node mock-server.js" || echo "No mock server processes found"
+          rm -f server.pid mock-server.pid || echo "No PID files to remove"
+
+          # Create a cleanup script that will be called at the end
+          cat > cleanup.sh << 'EOF'
+          #!/bin/bash
+          echo "Running final cleanup..."
+          # Try to kill by PID file
+          for pidfile in server.pid mock-server.pid; do
+            if [ -f "$pidfile" ]; then
+              echo "Cleaning up process from $pidfile"
+              pid=$(cat "$pidfile")
+              kill "$pid" 2>/dev/null || echo "Process $pid not found"
+              rm -f "$pidfile"
             fi
-          }
+          done
 
-          # Function to clean up all processes
-          cleanup_all() {
-            echo "Running global cleanup..."
-            cleanup_process "server.pid"
-            cleanup_process "mock-server.pid"
-            pkill -f "node server.js" || echo "No server processes found"
-            pkill -f "node mock-server.js" || echo "No mock server processes found"
-          }
+          # Kill any remaining processes as a safety net
+          pkill -f "node server.js" 2>/dev/null || echo "No server processes found"
+          pkill -f "node mock-server.js" 2>/dev/null || echo "No mock server processes found"
 
-          # Set trap to ensure cleanup happens even if script is interrupted
-          trap cleanup_all EXIT
+          # Always exit with success to prevent workflow failure
+          exit 0
+          EOF
+
+          chmod +x cleanup.sh
+
+      - name: Run E2E Tests
+        if: matrix.test-type == 'e2e'
+        id: run_e2e_tests
+        run: |
           echo "Checking server status before running tests..."
           curl -v http://localhost:5000/api/health || echo "Server may not be responding properly"
 
@@ -218,8 +227,6 @@ jobs:
           fi
 
           echo "E2E tests completed successfully"
-
-          # Final cleanup is handled by the trap
         env:
           CI: true
           CYPRESS_BASE_URL: http://localhost:5000
@@ -227,6 +234,13 @@ jobs:
           CYPRESS_DEFAULT_COMMAND_TIMEOUT: 10000
           CYPRESS_DEFAULT_TIMEOUT: 10000
           CYPRESS_REQUEST_TIMEOUT: 10000
+
+      # Always run cleanup, even if tests fail
+      - name: Cleanup E2E Test Environment
+        if: matrix.test-type == 'e2e' && always()
+        run: |
+          echo "Running final cleanup step..."
+          ./cleanup.sh
 
   deploy:
     needs: [parallel-tests]
