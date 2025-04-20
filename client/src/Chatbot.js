@@ -328,7 +328,7 @@ function Chatbot() {
               </div>
             ) : (
               // Messages area when there are messages
-              <div className="mb-8 overflow-y-auto max-h-[calc(100vh-280px)] custom-scrollbar">
+              <div className="mb-8 overflow-y-auto max-h-[calc(100vh-280px)] custom-scrollbar pr-2">
             {messages.map((message, index) => (
                   <ChatMessage
                 key={index}
@@ -389,7 +389,7 @@ function Chatbot() {
         </div>
 
             {/* Input Area - Made more compact */}
-            <div className={`relative ${theme.input} ${theme.inputBorder} rounded-lg overflow-hidden input-gradient`}>
+            <div className={`relative ${theme.input} ${theme.inputBorder} rounded-lg overflow-hidden input-gradient shadow-md`}>
               <textarea
                 ref={inputRef}
                 value={input}
@@ -398,6 +398,12 @@ function Chatbot() {
                 className={`w-full bg-transparent py-4 px-4 ${theme.text} focus:outline-none resize-none`}
                 rows="1"
                 style={{ minHeight: '60px' }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSubmit(e);
+                  }
+                }}
               />
               <div className="absolute right-2 bottom-2 flex items-center gap-2">
                 <button
@@ -411,7 +417,7 @@ function Chatbot() {
                   disabled={isLoading || !input.trim()}
                   className="px-4 py-2 bg-[#2DA8D4] text-white rounded-lg hover:bg-[#2B96BC] transition-colors flex items-center gap-2 hover-scale"
                 >
-                  Deep Research
+                  Send
                   <FiSend className="w-4 h-4" />
                 </button>
               </div>
@@ -634,11 +640,11 @@ function SelectedFile({ file, onRemove, theme }) {
 function ChatMessage({ message, theme, isDarkMode }) {
   return (
     <div className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'} mb-4 message-appear`}>
-      <div className={`max-w-[80%] ${
+      <div className={`max-w-[80%] theme-transition sender-${message.sender} ${
         message.sender === 'user'
-          ? 'bg-[#2DA8D4] text-white'
-          : `${theme.input} ${theme.inputBorder} ${theme.text}`
-      } rounded-lg p-3`}>
+          ? 'bg-[#2DA8D4] text-white hover-scale'
+          : `${theme.input} ${theme.inputBorder} ${theme.text} custom-scrollbar`
+      } rounded-lg p-3 shadow-md`}>
         {message.text === '...' ? (
           <div className="typing-indicator">
             <span className="typing-indicator-dot"></span>
@@ -646,7 +652,7 @@ function ChatMessage({ message, theme, isDarkMode }) {
             <span className="typing-indicator-dot"></span>
           </div>
         ) : (
-          <p>{message.text}</p>
+          <div className="message-content whitespace-pre-wrap">{message.text}</div>
         )}
         <div className={`text-xs mt-1 ${
           message.sender === 'user'

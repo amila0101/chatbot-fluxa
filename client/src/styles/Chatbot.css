@@ -1,7 +1,6 @@
 /* Chatbot Custom Styles */
 
 /* Gradient Text Effect */
-/* Gradient Text Effect */
 .gradient-text {
   background: linear-gradient(90deg, #2DD4BF 0%, #0EA5E9 100%);
   -webkit-background-clip: text;
@@ -101,4 +100,39 @@
 /* Dark Mode Transitions */
 .theme-transition {
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Chat message bubbles styling */
+[class*='sender-user'] {
+  border-top-right-radius: 0.25rem !important;
+}
+
+[class*='sender-bot'] {
+  border-top-left-radius: 0.25rem !important;
+}
+
+/* Message container shadow effects */
+.message-appear {
+  filter: drop-shadow(0 4px 3px rgb(0 0 0 / 0.07));
+}
+
+/* Enhanced input styling */
+textarea::placeholder {
+  opacity: 0.7;
+  font-style: italic;
+}
+
+/* Rich text formatting in messages */
+.message-content p {
+  margin-bottom: 0.75rem;
+}
+
+.message-content p:last-child {
+  margin-bottom: 0;
+}
+
+.message-content a {
+  color: #0EA5E9;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
