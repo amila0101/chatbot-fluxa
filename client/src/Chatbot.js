@@ -323,7 +323,7 @@ function Chatbot() {
               // Welcome screen when no messages
               <div className="text-center mb-8">
                 <h1 className={`text-5xl font-bold ${theme.textDark} mb-4`}>
-                  Ask Fluxa AI <span className="text-[#2DA8D4]">Anything</span>
+                  Ask Fluxa AI <span className="text-[#2DA8D4]">Anything.</span>
                 </h1>
               </div>
             ) : (
