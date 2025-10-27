@@ -136,7 +136,7 @@ jobs:
           echo "- The client uses React 16.8.6 with React Scripts 3.0.1 for maximum compatibility" >> node-compatibility-report.md
 
       - name: Upload Compatibility Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: node-compatibility-report
           path: node-compatibility-report.md
