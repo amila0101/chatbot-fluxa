@@ -105,8 +105,21 @@ const config = {
               sourceMap: false,
             },
           },
+          {
+            // postcss-loader processes @tailwind directives via postcss.config.js
+            loader: require.resolve('postcss-loader'),
+            options: {
+              postcssOptions: {
+                plugins: [
+                  require('tailwindcss'),
+                  require('autoprefixer'),
+                ],
+              },
+            },
+          },
         ],
       },
+
       {
         test: /\.(png|jpg|gif|svg|ico)$/,
         use: [

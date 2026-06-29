@@ -1,5 +1,8 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-@import './Chatbot.css'; 
+/*
+ * index.css
+ *
+ * Tailwind CSS is loaded via the Play CDN in public/index.html.
+ * This file only contains project-specific custom styles that extend
+ * or override Tailwind's utility classes.
+ */
+@import './Chatbot.css';

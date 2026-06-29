@@ -1,25 +1,62 @@
-const { NodeSDK } = require('@opentelemetry/sdk-node');
-const { getNodeAutoInstrumentations } = require('@opentelemetry/auto-instrumentations-node');
-const { OTLPTraceExporter } = require('@opentelemetry/exporter-trace-otlp-http');
-const { Resource } = require('@opentelemetry/resources');
-const { SemanticResourceAttributes } = require('@opentelemetry/semantic-conventions');
-const { trace, SpanStatusCode } = require('@opentelemetry/api');
-const { ConsoleSpanExporter } = require('@opentelemetry/sdk-trace-base');
+'use strict';
+/**
+ * tracing.js
+ * Distributed tracing via OpenTelemetry (optional).
+ *
+ * If the @opentelemetry/* packages are not installed, OR if DISABLE_TRACING=true
+ * is set in the environment, every function degrades gracefully to a no-op so
+ * the server continues to start without errors.
+ */
+
 const logger = require('./logger');
 
-// Define service name for tracing
-const serviceName = process.env.SERVICE_NAME || 'chatbot-server';
+// ─── Feature flag ─────────────────────────────────────────────────────────────
+const tracingDisabled =
+  process.env.DISABLE_TRACING === 'true' ||
+  process.env.NODE_ENV === 'test';
 
-// Initialize tracing
-function initTracing() {
+// ─── No-op span used as fallback ─────────────────────────────────────────────
+const noopSpan = {
+  setAttribute:    () => {},
+  recordException: () => {},
+  setStatus:       () => {},
+  end:             () => {},
+};
+
+// ─── Try to load OpenTelemetry (optional peer dependency) ────────────────────
+let otelTrace = null;
+let SpanStatusCode = { ERROR: 2 };
+
+if (!tracingDisabled) {
   try {
-    // Check if tracing is disabled
-    if (process.env.DISABLE_TRACING === 'true') {
-      logger.info('Tracing is disabled by configuration');
-      return null;
-    }
+    const api = require('@opentelemetry/api');
+    otelTrace = api.trace;
+    SpanStatusCode = api.SpanStatusCode;
+  } catch (_e) {
+    logger.warn(
+      'OpenTelemetry API not installed — tracing disabled. ' +
+      'Run: npm install @opentelemetry/api  (in server/) to enable.'
+    );
+  }
+}
 
-    // Create a resource that identifies your service
+// ─── initTracing ──────────────────────────────────────────────────────────────
+function initTracing() {
+  if (tracingDisabled || !otelTrace) {
+    logger.info('Tracing is disabled or unavailable — skipping SDK init.');
+    return null;
+  }
+
+  try {
+    const { NodeSDK }                    = require('@opentelemetry/sdk-node');
+    const { getNodeAutoInstrumentations } = require('@opentelemetry/auto-instrumentations-node');
+    const { ConsoleSpanExporter }        = require('@opentelemetry/sdk-trace-base');
+    const { OTLPTraceExporter }          = require('@opentelemetry/exporter-trace-otlp-http');
+    const { Resource }                   = require('@opentelemetry/resources');
+    const { SemanticResourceAttributes } = require('@opentelemetry/semantic-conventions');
+
+    const serviceName = process.env.SERVICE_NAME || 'chatbot-server';
+
     const resource = Resource.default().merge(
       new Resource({
         [SemanticResourceAttributes.SERVICE_NAME]: serviceName,
@@ -28,127 +65,117 @@ function initTracing() {
       })
     );
 
-    // Determine which exporter to use
-    let traceExporter;
-    const useConsoleExporter = process.env.TRACING_CONSOLE_EXPORT === 'true' || process.env.NODE_ENV === 'development';
+    const useConsole =
+      process.env.TRACING_CONSOLE_EXPORT === 'true' ||
+      process.env.NODE_ENV === 'development';
 
-    if (useConsoleExporter) {
-      // Use console exporter for development or when explicitly configured
+    let traceExporter;
+    if (useConsole) {
       traceExporter = new ConsoleSpanExporter();
-      logger.info('Using console span exporter for tracing');
+      logger.info('Tracing: using ConsoleSpanExporter');
     } else {
-      // Use OTLP exporter for production
       try {
         traceExporter = new OTLPTraceExporter({
           url: process.env.OTLP_ENDPOINT || 'http://localhost:4318/v1/traces',
-          headers: {},
         });
-        logger.info('Using OTLP exporter for tracing', {
-          endpoint: process.env.OTLP_ENDPOINT || 'http://localhost:4318/v1/traces'
-        });
-      } catch (exporterError) {
-        logger.warn('Failed to initialize OTLP exporter, falling back to console exporter', { error: exporterError });
+      } catch (exporterErr) {
+        logger.warn('OTLP exporter init failed — falling back to console', { error: exporterErr });
         traceExporter = new ConsoleSpanExporter();
       }
     }
 
-    // Create and configure the OpenTelemetry SDK
     const sdk = new NodeSDK({
       resource,
       traceExporter,
       instrumentations: [
         getNodeAutoInstrumentations({
-          // Enable all auto-instrumentations
-          '@opentelemetry/instrumentation-fs': { enabled: false }, // Disable file system instrumentation to reduce noise
-          '@opentelemetry/instrumentation-express': { enabled: true },
-          '@opentelemetry/instrumentation-http': { enabled: true },
-          '@opentelemetry/instrumentation-mongodb': { enabled: true },
+          '@opentelemetry/instrumentation-fs':      { enabled: false },
+          '@opentelemetry/instrumentation-express': { enabled: true  },
+          '@opentelemetry/instrumentation-http':    { enabled: true  },
+          '@opentelemetry/instrumentation-mongodb': { enabled: true  },
         }),
       ],
     });
 
-    // Start the SDK
     sdk.start();
 
-    // Graceful shutdown
     process.on('SIGTERM', () => {
       sdk.shutdown()
         .then(() => logger.info('Tracing terminated'))
-        .catch((error) => logger.error('Error terminating tracing', { error }))
+        .catch((err) => logger.error('Error terminating tracing', { error: err }))
         .finally(() => process.exit(0));
     });
 
-    logger.info('Tracing initialized successfully', { serviceName });
+    logger.info('Tracing initialised', { serviceName });
     return sdk;
-  } catch (error) {
-    logger.error('Failed to initialize tracing', {
-      error: error.message,
-      stack: error.stack,
-      name: error.name,
-      code: error.code
-    });
-    // Continue without tracing
+  } catch (err) {
+    logger.warn('Tracing init failed — continuing without tracing.', { error: err.message });
     return null;
   }
 }
 
-// Create a middleware to add trace context to requests
+// ─── tracingMiddleware ────────────────────────────────────────────────────────
 function tracingMiddleware(req, res, next) {
   try {
-    const currentSpan = trace.getActiveSpan();
-    if (currentSpan) {
-      // Add trace ID to request object for logging
-      const spanContext = currentSpan.spanContext();
-      req.traceId = spanContext.traceId;
-      req.spanId = spanContext.spanId;
-
-      // Add trace ID to response headers for client-side correlation
-      res.setHeader('X-Trace-Id', req.traceId);
-      res.setHeader('X-Span-Id', req.spanId);
-    } else {
-      // Generate a random trace ID if no active span
-      req.traceId = generateRandomId();
-      res.setHeader('X-Trace-Id', req.traceId);
+    if (otelTrace) {
+      const currentSpan = otelTrace.getActiveSpan();
+      if (currentSpan) {
+        const ctx = currentSpan.spanContext();
+        req.traceId = ctx.traceId;
+        req.spanId  = ctx.spanId;
+        res.setHeader('X-Trace-Id', req.traceId);
+        res.setHeader('X-Span-Id',  req.spanId);
+        return next();
+      }
     }
-  } catch (error) {
-    // If tracing fails, generate a random trace ID
-    logger.debug('Error in tracing middleware', { error: error.message });
-    req.traceId = generateRandomId();
-    res.setHeader('X-Trace-Id', req.traceId);
-  }
+  } catch (_e) { /* fall through */ }
+
+  req.traceId = generateRandomId();
+  res.setHeader('X-Trace-Id', req.traceId);
   next();
 }
 
-// Helper function to generate a random ID for tracing when OpenTelemetry is not available
-function generateRandomId() {
-  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-}
-
-// Helper function to create a new span
+// ─── createSpan ──────────────────────────────────────────────────────────────
+/**
+ * Wraps an async function in a tracing span.
+ * Falls back to running the function directly (with a no-op span) when
+ * tracing is unavailable.
+ *
+ * @param {string}   name - Span name
+ * @param {Function} fn   - async (span) => result
+ */
 function createSpan(name, fn) {
+  if (!otelTrace) {
+    return fn(noopSpan);
+  }
+
   try {
-    const tracer = trace.getTracer(serviceName);
+    const serviceName = process.env.SERVICE_NAME || 'chatbot-server';
+    const tracer = otelTrace.getTracer(serviceName);
     return tracer.startActiveSpan(name, async (span) => {
       try {
         const result = await fn(span);
         span.end();
         return result;
-      } catch (error) {
-        span.recordException(error);
+      } catch (err) {
+        span.recordException(err);
         span.setStatus({ code: SpanStatusCode.ERROR });
         span.end();
-        throw error;
+        throw err;
       }
     });
-  } catch (error) {
-    // If tracing is not initialized or fails, just run the function without tracing
-    logger.debug(`Tracing not available for span: ${name}`, { error: error.message });
-    return fn({ setAttribute: () => {}, recordException: () => {}, setStatus: () => {} });
+  } catch (_e) {
+    logger.debug(`Tracing unavailable for span: ${name}`);
+    return fn(noopSpan);
   }
 }
 
-module.exports = {
-  initTracing,
-  tracingMiddleware,
-  createSpan,
-};
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+function generateRandomId() {
+  return (
+    Math.random().toString(36).substring(2, 15) +
+    Math.random().toString(36).substring(2, 15)
+  );
+}
+
+module.exports = { initTracing, tracingMiddleware, createSpan };
