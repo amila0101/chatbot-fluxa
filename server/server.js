@@ -36,11 +36,10 @@ if (process.env.NODE_ENV === 'production') {
 const PORT = process.env.PORT || 5000;
 
 let server;
-if (process.env.NODE_ENV !== 'test') {
-  server = app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
-}
+// Always start the server, even in test mode
+server = app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT} (NODE_ENV: ${process.env.NODE_ENV})`);
+});
 
 // For testing purposes
 app.close = () => {
