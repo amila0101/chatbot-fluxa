@@ -4,7 +4,7 @@ import {
   FiCommand, FiMoon, FiSun, FiUser, FiSettings, FiSend,
   FiSearch, FiUpload, FiZap, FiX, FiCopy, FiRefreshCw,
   FiPlus, FiMessageSquare, FiTrash2, FiGlobe, FiMic,
-  FiCheck, FiChevronDown, FiChevronRight,
+  FiCheck, FiChevronDown,
 } from 'react-icons/fi';
 import { generateGeminiResponse } from './services/geminiService';
 import { useTheme } from './context/ThemeContext';
