@@ -295,6 +295,14 @@ jobs:
           SKIP_PREFLIGHT_CHECK: true
           NODE_OPTIONS: --openssl-legacy-provider
         run: |
+          # Safety: remove tailwindcss v4 if it was installed as a transitive dep.
+          # We use Tailwind via CDN (index.html script tag) — the npm package must
+          # NOT be present or react-scripts will try to use it as a PostCSS plugin.
+          cd client
+          npm uninstall tailwindcss --save-dev 2>/dev/null || true
+          rm -f tailwind.config.js 2>/dev/null || true
+          cd ..
+
           # Try to build with Vercel, fallback to regular build if it fails
           vercel build --prod --token=${{ secrets.VERCEL_TOKEN || 'dummy-token' }} || npm run build
       - name: Deploy Project Artifacts to Vercel
