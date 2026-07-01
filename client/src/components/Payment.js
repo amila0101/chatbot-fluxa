@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FiLock, FiCreditCard, FiCalendar, FiUser, FiCheck } from 'react-icons/fi';
+import { FiLock, FiCreditCard, FiUser, FiCheck } from 'react-icons/fi';
 
 export function Payment({ theme, plan, onSuccess }) {
   const [paymentDetails, setPaymentDetails] = useState({

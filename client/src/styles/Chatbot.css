@@ -1,138 +1,287 @@
-/* Chatbot Custom Styles */
+/* ═══════════════════════════════════════════════════════════════════════════
+   FLUXA AI v2.1 — Complete Design System
+   Palette: White · Black · Purple Gradient
+   ═══════════════════════════════════════════════════════════════════════════ */
 
-/* Gradient Text Effect */
+/* ─── CSS Custom Properties ────────────────────────────────────────────────── */
+:root {
+  --purple-500: #8B5CF6;
+  --purple-600: #7C3AED;
+  --purple-700: #6D28D9;
+  --fuchsia:    #C026D3;
+  --gradient:   linear-gradient(135deg, #7C3AED 0%, #9333EA 50%, #C026D3 100%);
+  --gradient-r: linear-gradient(135deg, #C026D3 0%, #9333EA 50%, #7C3AED 100%);
+  --gradient-soft: linear-gradient(135deg, rgba(124,58,237,0.12) 0%, rgba(192,38,211,0.08) 100%);
+  --glow:       0 0 30px rgba(124, 58, 237, 0.35);
+  --glow-soft:  0 0 15px rgba(124, 58, 237, 0.2);
+}
+
+/* ─── Base resets ──────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+html, body, #root { height: 100%; margin: 0; padding: 0; }
+
+/* ─── Gradient utilities ───────────────────────────────────────────────────── */
 .gradient-text {
-  background: linear-gradient(90deg, #2DD4BF 0%, #0EA5E9 100%);
+  background: var(--gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-/* Input Field Gradient */
-.input-gradient {
-  background: linear-gradient(180deg, rgba(45, 212, 191, 0.1) 0%, rgba(14, 165, 233, 0.1) 100%);
+.btn-gradient {
+  background: var(--gradient);
+  background-size: 200% 200%;
+  transition: background-position 0.4s ease, transform 0.2s ease, box-shadow 0.3s ease;
+  border: none;
+}
+.btn-gradient:hover:not(:disabled) {
+  background-position: right center;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(124, 58, 237, 0.45);
+}
+.btn-gradient:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: var(--glow-soft);
 }
 
-/* Message Animations */
-.message-appear {
-  animation: fadeIn 0.5s ease-out;
+/* ─── Sidebar layout ───────────────────────────────────────────────────────── */
+.sidebar-container {
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: width;
+}
+.sidebar-open  { width: 260px; }
+.sidebar-closed { width: 0; overflow: hidden; }
+
+/* ─── Sidebar items ────────────────────────────────────────────────────────── */
+.session-item {
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+  border-left: 2px solid transparent;
+}
+.session-active {
+  background: rgba(139, 92, 246, 0.12) !important;
+  border-left-color: #9333EA;
+}
+.sidebar-nav-item {
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.sidebar-nav-item:hover {
+  background: rgba(139, 92, 246, 0.08);
+  color: #A78BFA;
 }
 
-@keyframes fadeIn {
+/* ─── New Chat button ──────────────────────────────────────────────────────── */
+.new-chat-btn {
+  background: var(--gradient);
+  transition: all 0.25s ease;
+  border: none;
+}
+.new-chat-btn:hover {
+  box-shadow: 0 4px 20px rgba(124, 58, 237, 0.4);
+  transform: translateY(-1px);
+}
+.new-chat-btn:active { transform: translateY(0); }
+
+/* ─── Logo animations ──────────────────────────────────────────────────────── */
+@keyframes logoFloat {
+  0%, 100% { transform: translateY(0px);  }
+  50%       { transform: translateY(-5px); }
+}
+.logo-float { animation: logoFloat 3.5s ease-in-out infinite; }
+
+@keyframes logoPulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(124, 58, 237, 0.3), 0 0 40px rgba(124, 58, 237, 0.1); }
+  50%       { box-shadow: 0 0 35px rgba(124, 58, 237, 0.6), 0 0 60px rgba(192, 38, 211, 0.2); }
+}
+.logo-pulse { animation: logoPulse 2.5s ease-in-out infinite; }
+
+/* ─── Message appear animation ─────────────────────────────────────────────── */
+@keyframes messageSlideIn {
   from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+.message-appear { animation: messageSlideIn 0.3s ease-out; }
+
+/* ─── Typing indicator ─────────────────────────────────────────────────────── */
+.typing-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--gradient);
+  animation: typingBounce 1.4s ease-in-out infinite;
+  display: inline-block;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typingBounce {
+  0%, 60%, 100% { transform: translateY(0);    opacity: 0.5; }
+  30%           { transform: translateY(-8px); opacity: 1;   }
 }
 
-/* Typing Indicator */
-.typing-indicator {
+/* ─── Message layout helpers ───────────────────────────────────────────────── */
+.message-row { align-items: flex-start; }
+.msg-avatar  { margin-top: 2px; }
+.msg-actions { opacity: 0; transition: opacity 0.2s ease; }
+.message-row:hover .msg-actions { opacity: 1; }
+
+/* ─── Action buttons (copy / regenerate) ──────────────────────────────────── */
+.action-btn {
+  padding: 4px;
+  border-radius: 6px;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  color: #6B7280;
+  background: transparent;
+  border: none;
+  cursor: pointer;
   display: flex;
   align-items: center;
-  column-gap: 0.25rem;
+  justify-content: center;
+}
+.action-btn:hover { background: rgba(139, 92, 246, 0.12); color: #A78BFA; }
+
+/* ─── Input box ────────────────────────────────────────────────────────────── */
+.input-box {
+  transition: box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.input-glow:focus-within {
+  box-shadow: 0 0 0 1.5px rgba(124, 58, 237, 0.45), 0 4px 20px rgba(124, 58, 237, 0.12);
+  border-color: rgba(124, 58, 237, 0.4) !important;
 }
 
-.typing-indicator-dot {
-  display: block;
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: 50%;
-  background-color: #0EA5E9;
-  animation: typingAnimation 1.4s infinite ease-in-out;
+/* ─── Mode pills ───────────────────────────────────────────────────────────── */
+.mode-pill { transition: all 0.2s ease; cursor: pointer; }
+.mode-pill:hover { transform: translateY(-1px); }
+
+/* ─── Send button ──────────────────────────────────────────────────────────── */
+.send-btn { transition: all 0.2s ease; }
+.send-btn:not(:disabled):hover {
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.5);
+  transform: translateY(-1px);
 }
 
-.typing-indicator-dot:nth-child(1) {
-  animation-delay: 0s;
+/* ─── Suggestion cards ─────────────────────────────────────────────────────── */
+.suggestion-card {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  text-align: left;
+}
+.dark .suggestion-card {
+  background: rgba(22, 20, 42, 0.7);
+  border: 1px solid rgba(139, 92, 246, 0.1);
+  color: #E2E8F0;
+}
+.light .suggestion-card {
+  background: #FDFCFF;
+  border: 1px solid rgba(139, 92, 246, 0.1);
+}
+.suggestion-card:hover {
+  border-color: rgba(139, 92, 246, 0.4);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(124, 58, 237, 0.15);
+}
+.dark .suggestion-card:hover  { background: rgba(139, 92, 246, 0.08); }
+.light .suggestion-card:hover { background: #F5F3FF; }
+
+/* ─── Custom scrollbar (purple tint) ──────────────────────────────────────── */
+.custom-scroll::-webkit-scrollbar       { width: 4px; }
+.custom-scroll::-webkit-scrollbar-track { background: transparent; }
+.custom-scroll::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.25);
+  border-radius: 10px;
+}
+.custom-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 92, 246, 0.5);
 }
 
-.typing-indicator-dot:nth-child(2) {
-  animation-delay: 0.2s;
+/* ─── Code blocks ──────────────────────────────────────────────────────────── */
+.code-wrapper   { margin: 0.75rem 0; border-radius: 10px; overflow: hidden; border: 1px solid rgba(139,92,246,0.18); }
+.code-header    {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.4rem 1rem;
+  font-size: 0.72rem;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
 }
+.dark  .code-header { background: #1C1730; color: #9CA3AF; border-bottom: 1px solid rgba(139,92,246,0.15); }
+.light .code-header { background: #EDE9FE; color: #6D28D9; border-bottom: 1px solid rgba(139,92,246,0.15); }
 
-.typing-indicator-dot:nth-child(3) {
-  animation-delay: 0.4s;
+.code-lang    { color: #A78BFA; font-weight: 600; }
+.code-copy-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.15s;
+  font-size: 0.72rem;
 }
+.dark  .code-copy-btn { color: #6B7280; }
+.dark  .code-copy-btn:hover { color: #E2E8F0; }
+.light .code-copy-btn { color: #7C3AED; }
+.light .code-copy-btn:hover { color: #4C1D95; }
 
-@keyframes typingAnimation {
-  0%, 60%, 100% { transform: translateY(0); }
-  30% { transform: translateY(-5px); }
-}
-
-/* Scrollbar Styling */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: rgba(14, 165, 233, 0.5);
-  border-radius: 20px;
-}
-
-/* Button Hover Effects */
-.hover-scale {
-  transition: transform 0.2s ease;
-}
-
-.hover-scale:hover {
-  transform: scale(1.05);
-}
-
-/* Code Block Styling */
 .code-block {
-  background-color: rgba(30, 41, 59, 0.8);
-  border-radius: 0.5rem;
-  padding: 1rem;
-  margin: 1rem 0;
-  overflow-x: auto;
-  font-family: 'Fira Code', monospace;
-}
-
-.code-block pre {
   margin: 0;
+  padding: 1rem;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 0.82rem;
+  line-height: 1.65;
+  white-space: pre;
+  word-break: normal;
 }
+.dark  .code-block { background: #0D0B1A; color: #E2E8F0; }
+.light .code-block { background: #F5F3FF; color: #1E1B4B; }
 
-.code-block code {
-  color: #e2e8f0;
+/* Inline code */
+.inline-code {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.82em;
+  border-radius: 4px;
+  padding: 0.1em 0.4em;
 }
+.dark  .inline-code { background: rgba(139,92,246,0.2);  border: 1px solid rgba(139,92,246,0.25); color: #C4B5FD; }
+.light .inline-code { background: rgba(139,92,246,0.08); border: 1px solid rgba(139,92,246,0.2);  color: #6D28D9; }
 
-/* Dark Mode Transitions */
+/* ─── Markdown message content ─────────────────────────────────────────────── */
+.message-md { word-break: break-word; }
+.message-md strong { font-weight: 700; }
+.message-md em     { font-style: italic; }
+
+/* ─── Theme transitions ────────────────────────────────────────────────────── */
 .theme-transition {
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
-/* Chat message bubbles styling */
-[class*='sender-user'] {
-  border-top-right-radius: 0.25rem !important;
+/* ─── Spin (for regenerate loading) ────────────────────────────────────────── */
+@keyframes spin { to { transform: rotate(360deg); } }
+.spin { animation: spin 1s linear infinite; }
+
+/* ─── Scroll-to-bottom button ──────────────────────────────────────────────── */
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.7); }
+  to   { opacity: 1; transform: scale(1);   }
 }
 
-[class*='sender-bot'] {
-  border-top-left-radius: 0.25rem !important;
+/* ─── line-clamp util ──────────────────────────────────────────────────────── */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-/* Message container shadow effects */
-.message-appear {
-  filter: drop-shadow(0 4px 3px rgb(0 0 0 / 0.07));
+/* ─── Shimmer gradient on welcome screen logo ──────────────────────────────── */
+@keyframes gradientShift {
+  0%   { background-position: 0%   50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0%   50%; }
 }
 
-/* Enhanced input styling */
-textarea::placeholder {
-  opacity: 0.7;
-  font-style: italic;
-}
+/* ─── Smooth modal backdrop ─────────────────────────────────────────────────── */
+.backdrop-blur-sm { backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
 
-/* Rich text formatting in messages */
-.message-content p {
-  margin-bottom: 0.75rem;
-}
-
-.message-content p:last-child {
-  margin-bottom: 0;
-}
-
-.message-content a {
-  color: #0EA5E9;
-  text-decoration: underline;
-  text-underline-offset: 2px;
+/* ─── Responsive tweaks ────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .sidebar-open { width: 240px; }
+  .suggestion-card { padding: 0.875rem; }
 }
