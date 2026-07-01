@@ -54,8 +54,6 @@ const config = {
           },
         },
         parallel: true,
-        cache: true,
-        sourceMap: false,
       }),
       new OptimizeCSSAssetsPlugin({
         cssProcessorOptions: {
