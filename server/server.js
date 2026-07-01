@@ -58,14 +58,15 @@ app.use((err, _req, res, _next) => {
 // ─── Start listening ─────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
 
-let server;
-if (process.env.NODE_ENV !== 'test') {
-  server = app.listen(PORT, () => {
-    console.log(`[INFO] Server running on http://localhost:${PORT}`);
-  });
-}
+// Always listen — even in NODE_ENV=test — because E2E tests run the real server
+// as a background process and need it to actually bind to the port.
+// Unit/integration test files that import `app` directly should NOT call listen.
+const server = app.listen(PORT, () => {
+  console.log(`[INFO] Server running on http://localhost:${PORT} (NODE_ENV=${process.env.NODE_ENV || 'development'})`);
+});
 
-// Allow clean shutdown in tests
-app.close = () => (server ? server.close() : null);
+// Graceful shutdown helper (used by test teardown and SIGTERM)
+app.close = () => server.close();
+
 
 module.exports = app;
