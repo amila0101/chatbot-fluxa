@@ -104,12 +104,11 @@ const config = {
             },
           },
           {
-            // postcss-loader processes @tailwind directives via postcss.config.js
+            // postcss-loader: only autoprefixer needed — Tailwind is served via CDN in index.html
             loader: require.resolve('postcss-loader'),
             options: {
               postcssOptions: {
                 plugins: [
-                  require('tailwindcss'),
                   require('autoprefixer'),
                 ],
               },
